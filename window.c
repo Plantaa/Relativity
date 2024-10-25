@@ -13,15 +13,15 @@ void drawEveryFrame(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        DrawCircle(coordinates[i].x, coordinates[i].y, coordinates[i].radius, coordinates[i].color);
+        DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
     }
 }
 
 int main(void)
 {
 
-    const int screenWidth = 800;
-    const int screenHeight = 800;
+    const int screenWidth = 900;
+    const int screenHeight = 600;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
@@ -34,10 +34,12 @@ int main(void)
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
         BeginDrawing();
+
         int currentScreenHeight = GetScreenHeight();
         int currentScreenWidth = GetScreenWidth();
 
-        Vector2 mousePosition = GetMousePosition();
+        // Vector2 mousePosition = GetMousePosition();
+        Vector2 mousePosition = {screenWidth, 0};
         Vector2 center = {currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
 
         float angle = CalculateAngle(center, mousePosition);
@@ -77,12 +79,11 @@ int main(void)
                 index = 0;
 
             Coordinate newCoordinate = {
-                mousePosition.x,
-                mousePosition.y,
+                mousePosition,
                 6,
                 BLUE};
             coordinates[index++] = newCoordinate;
-            DrawCircle(mousePosition.x, mousePosition.y, 6, BLUE);
+            DrawCircleV(newCoordinate.vector, 6, BLUE);
         }
 
         EndDrawing();

@@ -7,8 +7,7 @@
 
 typedef struct coordinate
 {
-    int x;
-    int y;
+    Vector2 vector;
     int radius;
     Color color;
 }Coordinate;
