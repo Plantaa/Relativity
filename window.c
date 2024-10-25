@@ -26,32 +26,36 @@ int main(void)
         int currentScreenWidth = GetScreenWidth();
 
         Vector2 mousePosition = GetMousePosition();
-        Vector2 center = { currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
+        Vector2 center = {currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
 
         float angle = CalculateAngle(center, mousePosition);
         float axisLength = (currentScreenWidth < currentScreenHeight ? currentScreenWidth : currentScreenHeight);
 
         Vector2 xAxisEnd = {
             center.x + cos(angle) * axisLength,
-            center.y + sin(angle) * axisLength
-        };
+            center.y + sin(angle) * axisLength};
 
         Vector2 yAxisEnd = {
             center.x - sin(angle) * axisLength,
-            center.y + cos(angle) * axisLength
-        };
+            center.y + cos(angle) * axisLength};
+
+        Vector2 xAxisBegin = {
+            center.x + cos(angle) * (axisLength * -1),
+            center.y + sin(angle) * (axisLength * -1)};
+
+        Vector2 yAxisBegin = {
+            center.x - sin(angle) * (axisLength * -1),
+            center.y + cos(angle) * (axisLength * -1)};
 
         ClearBackground(RAYWHITE);
 
-        // Draw x1 axis
-        DrawLine(0, currentScreenHeight/2, currentScreenWidth, currentScreenHeight/2, BLACK);
-        // Draw y1 axis
-        DrawLine(currentScreenWidth/2, 0, currentScreenWidth/2, currentScreenHeight, BLACK);
+        drawEveryFrame(coordinates, total);
 
+        DrawLine(0, currentScreenHeight / 2, currentScreenWidth, currentScreenHeight / 2, BLACK);
+        DrawLine(currentScreenWidth / 2, 0, currentScreenWidth / 2, currentScreenHeight, BLACK);
 
-        // Draw xy2 axis
-        DrawLineV(center, xAxisEnd, RED);
-        DrawLineV(center, yAxisEnd, RED);
+        DrawLineV(xAxisBegin, xAxisEnd, RED);
+        DrawLineV(yAxisBegin, yAxisEnd, RED);
 
         EndDrawing();
     }
