@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "math.h"
+#include "coordinate.h"
 
 float CalculateAngle(Vector2 start, Vector2 end)
 {
@@ -8,16 +9,27 @@ float CalculateAngle(Vector2 start, Vector2 end)
     return atan2f(deltaY, deltaX);
 }
 
+void drawEveryFrame(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+    {
+        DrawCircle(coordinates[i].x, coordinates[i].y, coordinates[i].radius, coordinates[i].color);
+    }
+}
+
 int main(void)
 {
-    
+
     const int screenWidth = 800;
     const int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     SetTargetFPS(60);
-    
+
+    int index = 0;
+    int total = 0;
+    Coordinate coordinates[5];
 
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
@@ -56,6 +68,22 @@ int main(void)
 
         DrawLineV(xAxisBegin, xAxisEnd, RED);
         DrawLineV(yAxisBegin, yAxisEnd, RED);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (total++ > 5)
+                total = 5;
+            if (index >= 5)
+                index = 0;
+
+            Coordinate newCoordinate = {
+                mousePosition.x,
+                mousePosition.y,
+                6,
+                BLUE};
+            coordinates[index++] = newCoordinate;
+            DrawCircle(mousePosition.x, mousePosition.y, 6, BLUE);
+        }
 
         EndDrawing();
     }
