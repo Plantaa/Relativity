@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc -o window window.c `pkg-config --libs raylib` -lm
+gcc -Wall -Wpedantic -o window window.c pkg-config --libs raylib -lm
