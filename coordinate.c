@@ -8,8 +8,8 @@ Coordinate* coordinateCreate() {
 }
 
 void coordinateFill(Coordinate* coordinate, int x, int y, int radius, Color color) {
-    coordinate->x = x;
-    coordinate->y = y;
+    coordinate->vector.x = x;
+    coordinate->vector.x = y;
     coordinate->radius = radius;
     coordinate->color = color;
 }
