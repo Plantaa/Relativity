@@ -7,7 +7,7 @@
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
 void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index);
 void drawSavedCoordinates(Coordinate *coordinates, int total);
 
 int main(void)
@@ -23,7 +23,7 @@ int main(void)
     bool is_moving = false;
     Vector2 mouse_drag = {0};
 
-    camera.target = (Vector2){0.0f, 0.0f};
+    camera.target = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
     camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
@@ -72,7 +72,7 @@ int main(void)
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            drawAndSaveNewCoordinate(coordinates, mousePosition, &total, &index);
+            drawAndSaveNewCoordinate(coordinates, mousePosition, camera, &total, &index);
         }
 
 
@@ -142,15 +142,21 @@ void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
     DrawLineV(yAxisBegin, yAxisEnd, RED);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index)
 {
     if ((*total)++ > 5)
         (*total) = 5;
     if ((*index) >= 5)
         (*index) = 0;
+    
+    // Compensate mouse position with camera position
+    Vector2 coordinatePosition = {
+        mousePosition.x + (camera.target.x - camera.offset.x),
+        mousePosition.y + (camera.target.y - camera.offset.y)
+    };
 
     Coordinate newCoordinate = {
-        mousePosition,
+        coordinatePosition,
         6,
         BLUE};
     coordinates[(*index)++] = newCoordinate;
