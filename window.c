@@ -4,6 +4,7 @@
 #include "coordinate.h"
 #include "utils.h"
 
+void controlCamera(bool* isMoving, Vector2* mouseDrag, Vector2 mousePosition, Camera2D* camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
 void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight);
@@ -20,8 +21,8 @@ int main(void)
 
     Camera2D camera = {0};
 
-    bool is_moving = false;
-    Vector2 mouse_drag = {0};
+    bool isMoving = false;
+    Vector2 mouseDrag = {0};
 
     camera.target = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
     camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
@@ -40,27 +41,7 @@ int main(void)
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
 
-
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-        {
-            is_moving = true;
-            mouse_drag = mousePosition;
-        }
-
-        if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-        {
-            is_moving = false;
-        }
-
-        if (is_moving)
-        {
-            Vector2 dragDelta = {mouse_drag.x - mousePosition.x, mouse_drag.y - mousePosition.y};
-
-            camera.target.x += dragDelta.x;
-            camera.target.y += dragDelta.y;
-
-            mouse_drag = mousePosition;
-        }
+        controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
 
         BeginDrawing();
 
@@ -74,7 +55,6 @@ int main(void)
         {
             drawAndSaveNewCoordinate(coordinates, mousePosition, camera, &total, &index);
         }
-
 
         EndMode2D();
 
@@ -169,4 +149,28 @@ void drawSavedCoordinates(Coordinate *coordinates, int total)
     {
         DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
     }
+}
+
+void controlCamera(bool* isMoving, Vector2* mouseDrag, Vector2 mousePosition, Camera2D* camera)
+{
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        {
+            *isMoving = true;
+            *mouseDrag = mousePosition;
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        {
+            *isMoving = false;
+        }
+
+        if (*isMoving)
+        {
+            Vector2 dragDelta = {mouseDrag->x - mousePosition.x, mouseDrag->y - mousePosition.y};
+
+            camera->target.x += dragDelta.x;
+            camera->target.y += dragDelta.y;
+
+            *mouseDrag = mousePosition;
+        }
 }

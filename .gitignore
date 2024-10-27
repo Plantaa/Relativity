@@ -1,4 +1,10 @@
+# Binaries
 relativity
 **/*.o
 **/.exe
+
+# Project
+.vscode
+
+# Experiment
 Dockerfile
