@@ -7,7 +7,7 @@
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total);
 void drawBaseSystem(int currentScreenWidth, int currentScreenHeight);
 void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total, int index);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index);
 void drawSavedCoordinates(Coordinate *coordinates, int total);
 
 int main(void)
@@ -35,17 +35,19 @@ int main(void)
 
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
+
         int currentScreenWidth = GetScreenWidth();
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
         {
             is_moving = true;
             mouse_drag = mousePosition;
         }
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
         {
             is_moving = false;
         }
@@ -70,11 +72,12 @@ int main(void)
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            drawAndSaveNewCoordinate(coordinates, mousePosition, total, index);
+            drawAndSaveNewCoordinate(coordinates, mousePosition, &total, &index);
         }
 
+
         EndMode2D();
-        
+
         EndDrawing();
     }
 
@@ -139,18 +142,18 @@ void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
     DrawLineV(y2AxisBegin, y2AxisEnd, RED);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total, int index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index)
 {
-    if (total++ > 5)
-        total = 5;
-    if (index >= 5)
-        index = 0;
+    if ((*total)++ > 5)
+        (*total) = 5;
+    if ((*index) >= 5)
+        (*index) = 0;
 
     Coordinate newCoordinate = {
         mousePosition,
         6,
         BLUE};
-    coordinates[index++] = newCoordinate;
+    coordinates[(*index)++] = newCoordinate;
     DrawCircleV(newCoordinate.vector, 6, BLUE);
 }
 
