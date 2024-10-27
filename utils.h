@@ -5,5 +5,6 @@
 #include "math.h"
 
 float calculateAngle(Vector2 start, Vector2 end);
+float radiansToDegrees(float radians);
 
 #endif
