@@ -5,7 +5,7 @@
 #include "utils.h"
 
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total);
-void drawBaseSystem(int currentScreenWidth, int currentScreenHeight);
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
 void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight);
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index);
 void drawSavedCoordinates(Coordinate *coordinates, int total);
@@ -87,59 +87,59 @@ int main(void)
 
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total)
 {
-    drawBaseSystem(currentScreenWidth, currentScreenHeight);
+    drawPrimarySystem(currentScreenWidth, currentScreenHeight);
     drawSecondarySystem(currentScreenWidth, currentScreenHeight);
     drawSavedCoordinates(coordinates, total);
 }
 
-void drawBaseSystem(int currentScreenWidth, int currentScreenHeight)
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight)
 {
-    Vector2 x1AxisBegin = {
+    Vector2 xAxisBegin = {
         0,
         currentScreenHeight / 2};
 
-    Vector2 x1AxisEnd = {
+    Vector2 xAxisEnd = {
         currentScreenWidth,
         currentScreenHeight / 2};
 
-    Vector2 y1AxisBegin = {
+    Vector2 yAxisBegin = {
         currentScreenWidth / 2,
         0};
 
-    Vector2 y1AxisEnd = {
+    Vector2 yAxisEnd = {
         currentScreenWidth / 2,
         currentScreenHeight};
 
-    DrawLineV(x1AxisBegin, x1AxisEnd, BLACK);
-    DrawLineV(y1AxisBegin, y1AxisEnd, BLACK);
+    DrawLineV(xAxisBegin, xAxisEnd, BLACK);
+    DrawLineV(yAxisBegin, yAxisEnd, BLACK);
 }
 
 void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
 {
-    Vector2 x2EndPosition = {currentScreenWidth, 0};
+    Vector2 xEndPosition = {currentScreenWidth, 0};
     Vector2 center = {currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
 
-    float angle = calculateAngle(center, x2EndPosition);
+    float angle = calculateAngle(center, xEndPosition);
     float axisLength = (currentScreenWidth < currentScreenHeight ? currentScreenWidth : currentScreenHeight);
 
-    Vector2 x2AxisBegin = {
+    Vector2 xAxisBegin = {
         center.x + cos(angle) * (axisLength * -1),
         center.y + sin(angle) * (axisLength * -1)};
 
-    Vector2 x2AxisEnd = {
+    Vector2 xAxisEnd = {
         center.x + cos(angle) * axisLength,
         center.y + sin(angle) * axisLength};
 
-    Vector2 y2AxisBegin = {
+    Vector2 yAxisBegin = {
         center.x - sin(angle) * (axisLength * -1),
         center.y + cos(angle) * (axisLength * -1)};
 
-    Vector2 y2AxisEnd = {
+    Vector2 yAxisEnd = {
         center.x - sin(angle) * axisLength,
         center.y + cos(angle) * axisLength};
 
-    DrawLineV(x2AxisBegin, x2AxisEnd, RED);
-    DrawLineV(y2AxisBegin, y2AxisEnd, RED);
+    DrawLineV(xAxisBegin, xAxisEnd, RED);
+    DrawLineV(yAxisBegin, yAxisEnd, RED);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, int* total, int* index)
