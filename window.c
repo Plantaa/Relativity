@@ -18,15 +18,13 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Relative Systems");
     SetTargetFPS(60);
 
-  
-    Camera2D camera = { 0 };
-    Vector2 origin = { screen_width / 2.0f, screen_height / 2.0f };
+    Camera2D camera = {0};
 
     bool is_moving = false;
-    Vector2 mouse_drag = { 0 };
-  
-    camera.target = (Vector2){ 0.0f, 0.0f };
-    camera.offset = (Vector2){ screen_width / 2.0f, screen_height / 2.0f };
+    Vector2 mouse_drag = {0};
+
+    camera.target = (Vector2){0.0f, 0.0f};
+    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -37,34 +35,36 @@ int main(void)
 
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
-      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
+        int currentScreenWidth = GetScreenWidth();
+        int currentScreenHeight = GetScreenHeight();
+        Vector2 mousePosition = GetMousePosition();
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
             is_moving = true;
-            mouse_drag = GetMousePosition();
+            mouse_drag = mousePosition;
         }
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) 
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
         {
             is_moving = false;
         }
 
-        if (is_moving) {
-            Vector2 mousePosition = GetMousePosition();
-            Vector2 dragDelta = { mouse_drag.x - mousePosition.x, mouse_drag.y - mousePosition.y };
-            
+        if (is_moving)
+        {
+            Vector2 dragDelta = {mouse_drag.x - mousePosition.x, mouse_drag.y - mousePosition.y};
+
             camera.target.x += dragDelta.x;
             camera.target.y += dragDelta.y;
-            
+
             mouse_drag = mousePosition;
         }
-      
+
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
-        int currentScreenWidth = GetScreenWidth();
-        int currentScreenHeight = GetScreenHeight();
-        Vector2 mousePosition = GetMousePosition();
+        BeginMode2D(camera);
 
         drawEveryFrame(currentScreenWidth, currentScreenHeight, coordinates, total);
 
@@ -72,8 +72,9 @@ int main(void)
         {
             drawAndSaveNewCoordinate(coordinates, mousePosition, total, index);
         }
-      
+
         EndMode2D();
+        
         EndDrawing();
     }
 
@@ -160,5 +161,3 @@ void drawSavedCoordinates(Coordinate *coordinates, int total)
         DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
     }
 }
-    return 0;
-
