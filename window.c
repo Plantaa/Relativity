@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "raylib.h"
 #include "math.h"
 
@@ -100,6 +103,7 @@ void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
     Vector2 center = {currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
 
     float angle = calculateAngle(center, xEndPosition);
+    float angleDegrees = radiansToDegrees(angle);
     float axisLength = (currentScreenWidth < currentScreenHeight ? currentScreenWidth : currentScreenHeight);
 
     Vector2 xAxisBegin = {
@@ -120,6 +124,12 @@ void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
 
     DrawLineV(xAxisBegin, xAxisEnd, RED);
     DrawLineV(yAxisBegin, yAxisEnd, RED);
+
+    // Angle marker
+    char markerText[10];
+    snprintf(markerText, 10, "%f", -angleDegrees);
+    DrawCircleSectorLines(center, 50, 0.f, angleDegrees, 30, GRAY);
+    DrawText(markerText, center.x + 60, center.y - 20, 10, GRAY);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index)
