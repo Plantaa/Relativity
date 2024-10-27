@@ -1,7 +1,7 @@
 CC		 = gcc
 BIN		 = relativity
-OBJ      = window.o coordinate.o
-LINKOBJ  = window.o coordinate.o
+OBJ      = window.o coordinate.o utils.o
+LINKOBJ  = window.o coordinate.o utils.o
 CFLAGS   = -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 RM       = rm.exe -f
 
@@ -13,6 +13,9 @@ window.o: window.c
 
 coordinate.o: coordinate.c
 	$(CC) -c coordinate.c -o coordinate.o $(CFLAGS)
+
+utils.o: utils.c
+	$(CC) -c utils.c -o utils.o $(CFLAGS)
 
 clean:
 	rm -f *.o
