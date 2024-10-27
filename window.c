@@ -1,82 +1,73 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute raylib_compile_execute script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 1.0
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "raylib.h"
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-int main(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 800;
+const int screen_width = 800;
+const int screen_height = 800;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+Camera2D camera = { 0 };
+Vector2 origin = { screen_width / 2.0f, screen_height / 2.0f };
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+bool is_moving = false;
+Vector2 mouse_drag = { 0 };
 
+void DrawFirstCoordinateSystem() {
+    DrawLine(-5000, 50, +5000, 50, RED);
+    DrawLine(30, -5000, 30, +5000, RED);
+}
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+void DrawSecondCoordinateSystem() {
+    DrawLine(-5000, 0, +5000, 0, BLUE);
+    DrawLine(0, -5000, 0, +5000, BLUE);
+}
+
+int main(void) {
+
+    InitWindow(screen_width, screen_height, "relativização");
+
+    camera.target = (Vector2){ 0.0f, 0.0f };
+    camera.offset = (Vector2){ screen_width / 2.0f, screen_height / 2.0f };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+    SetTargetFPS(60);
+
+    while (!WindowShouldClose()) 
     {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
 
-        // Draw
-        //----------------------------------------------------------------------------------
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
+        {
+            is_moving = true;
+            mouse_drag = GetMousePosition();
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT)) 
+        {
+            is_moving = false;
+        }
+
+        if (is_moving) {
+            Vector2 mousePosition = GetMousePosition();
+            Vector2 dragDelta = { mouse_drag.x - mousePosition.x, mouse_drag.y - mousePosition.y };
+            
+            camera.target.x += dragDelta.x;
+            camera.target.y += dragDelta.y;
+            
+            mouse_drag = mousePosition;
+        }
+
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            // Draw x1 axis
-            DrawLine(0, screenHeight/2, screenWidth, screenHeight/2, BLACK);
-            // Draw y1 axis
-            DrawLine(screenWidth/2, 0, screenWidth/2, screenHeight, BLACK);
+            BeginMode2D(camera); 
 
-            // Draw x2 axis
-            DrawLine(0, 0, screenWidth, screenHeight, RED);
-            // Draw y2 axis
-            DrawLine(0, screenHeight, screenWidth, 0, RED);
+            DrawFirstCoordinateSystem();
 
-            
+            DrawSecondCoordinateSystem();
 
-            DrawGrid(5, 10);
-
-
-            // DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            EndMode2D(); 
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow();
     return 0;
 }
