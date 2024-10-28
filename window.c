@@ -22,15 +22,23 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Relative Systems");
     SetTargetFPS(60);
 
-    Camera2D camera = {0};
-
+    // Camera config
+    Camera2D camera = {
+        .offset = {
+            .x = screenWidth / 2.0f,
+            .y = screenHeight / 2.0f
+        },
+        .target = {
+            .x = screenWidth / 2.0f,
+            .y = screenHeight / 2.0f
+        },
+        .rotation = 0.0f,
+        .zoom = 1.0f
+    };
+    
+    // Camera state
     bool isMoving = false;
     Vector2 mouseDrag = {0};
-
-    camera.target = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
-    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
 
     // Tracking of saved coordinates
     int index = 0;
@@ -134,7 +142,7 @@ void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index)
 {
-    if ((*total)++ > 5)
+    if ((*total)++ >= 5)
         (*total) = 5;
     if ((*index) >= 5)
         (*index) = 0;
