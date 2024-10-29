@@ -208,7 +208,6 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 void setSecondarySystemAngle(Vector2 position, float *angle)
 {
     *angle = calculateAngle((Vector2){.x = 0.0f, .y = 0.0f}, position);
-    printf("Angle: %f\n", *angle);
 }
 
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
