@@ -1,6 +1,7 @@
 #ifndef COORDINATE_H_
 #define COORDINATE_H_
 
+#include <math.h>
 #include "raylib.h"
 
 typedef struct coordinate
@@ -13,6 +14,7 @@ typedef struct coordinate
 }Coordinate;
 
 Coordinate* coordinateCreate();
-void coordinateFill(Coordinate* coordinate, Vector2 position, int radius, Color color);
+void coordinateFill(Coordinate* coordinate, Vector2 position, float angle, int radius, Color color);
+void updateSecondaryLabel(Coordinate* coordinate, float angle);
 
 #endif

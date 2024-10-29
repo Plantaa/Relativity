@@ -11,8 +11,8 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
 void drawSecondarySystem(float angle);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *total, int *index);
-void drawSavedCoordinates(Coordinate *coordinates, int total);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index);
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 
@@ -69,7 +69,7 @@ int main(void)
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, &total, &index);
+            drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
         }
 
         EndMode2D();
@@ -85,7 +85,7 @@ void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle
 {
     drawPrimarySystem(currentScreenWidth, currentScreenHeight);
     drawSecondarySystem(angle);
-    drawSavedCoordinates(coordinates, total);
+    drawSavedCoordinates(coordinates, total, angle);
 }
 
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight)
@@ -152,7 +152,7 @@ void drawSecondarySystem(float angle)
     DrawLineV(yAxisBegin, yAxisEnd, RED);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *total, int *index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index)
 {
     if ((*total)++ >= 5)
         (*total) = 5;
@@ -160,18 +160,22 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *to
         (*index) = 0;
 
     Coordinate* newCoordinate = coordinateCreate();
-    coordinateFill(newCoordinate, position, 6, BLUE);
+    coordinateFill(newCoordinate, position, angle, 6, BLUE);
+
     coordinates[(*index)++] = *newCoordinate;
     DrawCircleV(newCoordinate->vector, 6, BLUE);
-    DrawText(newCoordinate->primaryLabel, newCoordinate->vector.x+5, newCoordinate->vector.y+5, 10, BLUE);
+    DrawText(newCoordinate->primaryLabel, newCoordinate->vector.x+5, newCoordinate->vector.y+5, 10, BLACK);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->vector.x+10, newCoordinate->vector.y+10, 10, RED);
 }
 
-void drawSavedCoordinates(Coordinate *coordinates, int total)
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
         DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
-        DrawText(coordinates[i].primaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLUE);
+        DrawText(coordinates[i].primaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLACK);
+        updateSecondaryLabel(coordinates+i, angle);
+        DrawText(coordinates[i].secondaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+17, 10, RED);
     }
 }
 
