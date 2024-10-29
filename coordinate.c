@@ -17,14 +17,8 @@ void coordinateFill(Coordinate *coordinate, Vector2 position, float angle, int r
     coordinate->primaryLabel = (char *)malloc(sizeof(char) * 20);
     snprintf(coordinate->primaryLabel, 20, "(%.2f, %.2f)", position.x, -position.y);
 
-    float angleSin = sinf(angle);
-    float angleCos = cosf(angle);
-
-    Vector2 secondarySystemCoordinates = {
-        .x = position.x * angleCos + position.y * angleSin,
-        .y = -position.x * angleSin + position.y * angleCos};
     coordinate->secondaryLabel = (char *)malloc(sizeof(char) * 20);
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", secondarySystemCoordinates.x, -secondarySystemCoordinates.y);
+    updateSecondaryLabel(coordinate, angle);
 }
 
 void updateSecondaryLabel(Coordinate* coordinate, float angle)
