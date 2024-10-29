@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "coordinate.h"
+#include "utils.h"
 
 Coordinate *coordinateCreate()
 {
@@ -10,7 +11,8 @@ Coordinate *coordinateCreate()
 
 void coordinateFill(Coordinate *coordinate, Vector2 position, float angle, int radius, Color color)
 {
-    coordinate->vector = position;
+    coordinate->primaryPostion = position;
+    coordinate->secondaryPostion = convertToSystemB(position, angle);
     coordinate->radius = radius;
     coordinate->color = color;
 
@@ -18,16 +20,25 @@ void coordinateFill(Coordinate *coordinate, Vector2 position, float angle, int r
     snprintf(coordinate->primaryLabel, 20, "(%.2f, %.2f)", position.x, -position.y);
 
     coordinate->secondaryLabel = (char *)malloc(sizeof(char) * 20);
-    updateSecondaryLabel(coordinate, angle);
+    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPostion.x, coordinate->secondaryPostion.y);
 }
 
-void updateSecondaryLabel(Coordinate* coordinate, float angle)
+void updateSecondaryLabel(Coordinate *coordinate, float angle)
 {
-    float angleSin = sinf(angle);
-    float angleCos = cosf(angle);
+    coordinate->secondaryPostion = convertToSystemB(coordinate->primaryPostion, angle);
+    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPostion.x, -coordinate->secondaryPostion.y);
+}
 
-    Vector2 secondarySystemCoordinates = {
-        .x = coordinate->vector.x * angleCos + coordinate->vector.y * angleSin,
-        .y = -coordinate->vector.x * angleSin + coordinate->vector.y * angleCos};
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", secondarySystemCoordinates.x, -secondarySystemCoordinates.y);
+// Function to draw the components for System
+void drawComponentsSystem(Vector2 point, float theta, Color color)
+{
+    int dotNumber = 50;
+
+    // Project x component along the rotated x-axis
+    Vector2 xComponentB = convertToSystemB((Vector2){point.x, 0}, theta);
+    drawDottedLine(point, xComponentB, dotNumber, color);
+
+    // Project y component along the rotated y-axis
+    Vector2 yComponentB = convertToSystemB((Vector2){0, point.y}, theta);
+    drawDottedLine(point, yComponentB, dotNumber, color);
 }

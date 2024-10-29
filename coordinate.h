@@ -6,7 +6,8 @@
 
 typedef struct coordinate
 {
-    Vector2 vector;
+    Vector2 primaryPostion;
+    Vector2 secondaryPostion;
     int radius;
     Color color;
     char* primaryLabel;
@@ -16,5 +17,6 @@ typedef struct coordinate
 Coordinate* coordinateCreate();
 void coordinateFill(Coordinate* coordinate, Vector2 position, float angle, int radius, Color color);
 void updateSecondaryLabel(Coordinate* coordinate, float angle);
+void drawComponentsSystem(Vector2 point, float theta, Color color);
 
 #endif
