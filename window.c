@@ -7,12 +7,14 @@
 #include "coordinate.h"
 #include "utils.h"
 
-void controlCamera(bool* isMoving, Vector2* mouseDrag, Vector2 mousePosition, Camera2D* camera);
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total);
+void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
+void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
-void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index);
+void drawSecondarySystem(float angle);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *total, int *index);
 void drawSavedCoordinates(Coordinate *coordinates, int total);
+void setSecondarySystemAngle(Vector2 position, float *angle);
+Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 
 int main(void)
 {
@@ -22,20 +24,24 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Relative Systems");
     SetTargetFPS(60);
 
-    Camera2D camera = {0};
+    // Camera config
+    Camera2D camera = {
+        .offset = {
+            .x = screenWidth / 2,
+            .y = screenHeight / 2},
+        .target = {.x = 0.0f, .y = 0.0f},
+        .rotation = 0.0f,
+        .zoom = 1.0f};
 
+    // Camera state
     bool isMoving = false;
     Vector2 mouseDrag = {0};
-
-    camera.target = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
-    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
 
     // Tracking of saved coordinates
     int index = 0;
     int total = 0;
     Coordinate coordinates[5];
+    float angle = 45 * (PI / 180);
 
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
@@ -52,11 +58,18 @@ int main(void)
 
         BeginMode2D(camera);
 
-        drawEveryFrame(currentScreenWidth, currentScreenHeight, coordinates, total);
+        Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
+
+        if (IsKeyPressed(KEY_R))
+        {
+            setSecondarySystemAngle(mousePositionCompensated, &angle);
+        }
+
+        drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            drawAndSaveNewCoordinate(coordinates, mousePosition, camera, &total, &index);
+            drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, &total, &index);
         }
 
         EndMode2D();
@@ -68,119 +81,143 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinates, int total)
+void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total)
 {
     drawPrimarySystem(currentScreenWidth, currentScreenHeight);
-    drawSecondarySystem(currentScreenWidth, currentScreenHeight);
+    drawSecondarySystem(angle);
     drawSavedCoordinates(coordinates, total);
 }
 
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight)
 {
     Vector2 xAxisBegin = {
-        0,
-        currentScreenHeight / 2};
+        -currentScreenWidth,
+        0};
 
     Vector2 xAxisEnd = {
         currentScreenWidth,
-        currentScreenHeight / 2};
-
-    Vector2 yAxisBegin = {
-        currentScreenWidth / 2,
         0};
 
+    Vector2 yAxisBegin = {
+        0,
+        -currentScreenHeight};
+
     Vector2 yAxisEnd = {
-        currentScreenWidth / 2,
+        0,
         currentScreenHeight};
 
     DrawLineV(xAxisBegin, xAxisEnd, BLACK);
+    DrawTriangle(
+        (Vector2){0, -currentScreenHeight / 2},
+        (Vector2){-10, (-currentScreenHeight + 20) / 2},
+        (Vector2){10, (-currentScreenHeight + 20) / 2},
+        BLACK);
     DrawLineV(yAxisBegin, yAxisEnd, BLACK);
 }
 
-void drawSecondarySystem(int currentScreenWidth, int currentScreenHeight)
+void drawSecondarySystem(float angle)
 {
-    Vector2 xEndPosition = {currentScreenWidth, 0};
-    Vector2 center = {currentScreenWidth / 2.0f, currentScreenHeight / 2.0f};
-
-    float angle = calculateAngle(center, xEndPosition);
+    Vector2 origin = {
+        .x = 0.0f,
+        .y = 0.0f};
+    
+    float angleSin = sin(angle);
+    float angleCos = cos(angle);
     float angleDegrees = radiansToDegrees(angle);
-    float axisLength = (currentScreenWidth < currentScreenHeight ? currentScreenWidth : currentScreenHeight);
-
-    Vector2 xAxisBegin = {
-        center.x + cos(angle) * (axisLength * -1),
-        center.y + sin(angle) * (axisLength * -1)};
-
-    Vector2 xAxisEnd = {
-        center.x + cos(angle) * axisLength,
-        center.y + sin(angle) * axisLength};
-
-    Vector2 yAxisBegin = {
-        center.x - sin(angle) * (axisLength * -1),
-        center.y + cos(angle) * (axisLength * -1)};
-
-    Vector2 yAxisEnd = {
-        center.x - sin(angle) * axisLength,
-        center.y + cos(angle) * axisLength};
-
-    DrawLineV(xAxisBegin, xAxisEnd, RED);
-    DrawLineV(yAxisBegin, yAxisEnd, RED);
+    float axisLength = 900;
 
     // Angle marker
     char markerText[10];
     snprintf(markerText, 10, "%f", -angleDegrees);
-    DrawCircleSectorLines(center, 50, 0.f, angleDegrees, 30, GRAY);
-    DrawText(markerText, center.x + 60, center.y - 20, 10, GRAY);
+    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
+    DrawText(markerText, 60, 20, 10, GRAY);
+
+    Vector2 xAxisBegin = {
+        angleCos * axisLength,
+        angleSin * axisLength};
+
+    Vector2 xAxisEnd = {
+        -angleCos * axisLength,
+        -angleSin * axisLength};
+
+    Vector2 yAxisBegin = {
+        angleSin * axisLength,
+        -angleCos * axisLength};
+
+    Vector2 yAxisEnd = {
+        -angleSin * axisLength,
+        angleCos * axisLength};
+
+    DrawLineV(xAxisBegin, xAxisEnd, RED);
+    DrawLineV(yAxisBegin, yAxisEnd, RED);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 mousePosition, Camera2D camera, int* total, int* index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *total, int *index)
 {
-    if ((*total)++ > 5)
+    if ((*total)++ >= 5)
         (*total) = 5;
     if ((*index) >= 5)
         (*index) = 0;
-    
-    // Compensate mouse position with camera position
-    Vector2 coordinatePosition = {
-        mousePosition.x + (camera.target.x - camera.offset.x),
-        mousePosition.y + (camera.target.y - camera.offset.y)
-    };
 
     Coordinate newCoordinate = {
-        coordinatePosition,
+        position,
         6,
         BLUE};
     coordinates[(*index)++] = newCoordinate;
     DrawCircleV(newCoordinate.vector, 6, BLUE);
+    char label[20];
+    snprintf(label, 20, "(%.2f,%.2f)", newCoordinate.vector.x, -newCoordinate.vector.y);
+    DrawText(label, newCoordinate.vector.x+5, newCoordinate.vector.y+5, 10, BLUE);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total)
 {
+    char label[20];
     for (int i = 0; i < total; i++)
     {
         DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
+        snprintf(label, 20, "(%.2f,%.2f)", coordinates[i].vector.x, -coordinates[i].vector.y);
+        DrawText(label, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLUE);
     }
 }
 
-void controlCamera(bool* isMoving, Vector2* mouseDrag, Vector2 mousePosition, Camera2D* camera)
+void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera)
 {
     if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-        {
-            *isMoving = true;
-            *mouseDrag = mousePosition;
-        }
+    {
+        *isMoving = true;
+        *mouseDrag = mousePosition;
+    }
 
-        if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-        {
-            *isMoving = false;
-        }
+    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+    {
+        *isMoving = false;
+    }
 
-        if (*isMoving)
-        {
-            Vector2 dragDelta = {mouseDrag->x - mousePosition.x, mouseDrag->y - mousePosition.y};
+    if (*isMoving)
+    {
+        Vector2 dragDelta = {mouseDrag->x - mousePosition.x, mouseDrag->y - mousePosition.y};
 
-            camera->target.x += dragDelta.x;
-            camera->target.y += dragDelta.y;
+        camera->target.x += dragDelta.x;
+        camera->target.y += dragDelta.y;
 
-            *mouseDrag = mousePosition;
-        }
+        *mouseDrag = mousePosition;
+    }
+}
+
+void setSecondarySystemAngle(Vector2 position, float *angle)
+{
+    *angle = calculateAngle((Vector2){.x = 0.0f, .y = 0.0f}, position);
+    printf("Angle: %f\n", *angle);
+}
+
+Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
+{
+    Vector2 cameraCompensation = {
+        .x = camera.target.x - camera.offset.x,
+        .y = camera.target.y - camera.offset.y};
+
+    return (Vector2) {
+        .x = mousePosition.x + cameraCompensation.x,
+        .y = mousePosition.y + cameraCompensation.y};
 }
