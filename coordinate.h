@@ -11,6 +11,6 @@ typedef struct coordinate
 }Coordinate;
 
 Coordinate* coordinateCreate();
-void coordinateFill(Coordinate* coordinate, int x, int y, int radius, Color color);
+void coordinateFill(Coordinate* coordinate, Vector2 position, int radius, Color color);
 
 #endif

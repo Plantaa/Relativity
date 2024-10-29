@@ -7,9 +7,8 @@ Coordinate* coordinateCreate() {
     return (Coordinate*) malloc(sizeof(Coordinate));
 }
 
-void coordinateFill(Coordinate* coordinate, int x, int y, int radius, Color color) {
-    coordinate->vector.x = x;
-    coordinate->vector.x = y;
+void coordinateFill(Coordinate* coordinate, Vector2 position, int radius, Color color) {
+    coordinate->vector = position;
     coordinate->radius = radius;
     coordinate->color = color;
 }
