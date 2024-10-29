@@ -11,4 +11,6 @@ void coordinateFill(Coordinate* coordinate, Vector2 position, int radius, Color 
     coordinate->vector = position;
     coordinate->radius = radius;
     coordinate->color = color;
+    coordinate->primaryLabel = (char*)malloc(sizeof(char)*20);
+    snprintf(coordinate->primaryLabel, 20, "(%.2f, %.2f)", position.x, -position.y);
 }

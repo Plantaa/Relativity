@@ -8,6 +8,8 @@ typedef struct coordinate
     Vector2 vector;
     int radius;
     Color color;
+    char* primaryLabel;
+    char* secondaryLabel;
 }Coordinate;
 
 Coordinate* coordinateCreate();

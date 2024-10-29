@@ -159,25 +159,19 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, int *to
     if ((*index) >= 5)
         (*index) = 0;
 
-    Coordinate newCoordinate = {
-        position,
-        6,
-        BLUE};
-    coordinates[(*index)++] = newCoordinate;
-    DrawCircleV(newCoordinate.vector, 6, BLUE);
-    char label[20];
-    snprintf(label, 20, "(%.2f,%.2f)", newCoordinate.vector.x, -newCoordinate.vector.y);
-    DrawText(label, newCoordinate.vector.x+5, newCoordinate.vector.y+5, 10, BLUE);
+    Coordinate* newCoordinate = coordinateCreate();
+    coordinateFill(newCoordinate, position, 6, BLUE);
+    coordinates[(*index)++] = *newCoordinate;
+    DrawCircleV(newCoordinate->vector, 6, BLUE);
+    DrawText(newCoordinate->primaryLabel, newCoordinate->vector.x+5, newCoordinate->vector.y+5, 10, BLUE);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total)
 {
-    char label[20];
     for (int i = 0; i < total; i++)
     {
         DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
-        snprintf(label, 20, "(%.2f,%.2f)", coordinates[i].vector.x, -coordinates[i].vector.y);
-        DrawText(label, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLUE);
+        DrawText(coordinates[i].primaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLUE);
     }
 }
 
