@@ -9,12 +9,13 @@
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight);
-void drawSecondarySystem(float angle);
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
+void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
+void drawAngleMarker(Vector2 origin, float angleDegrees);
 
 int main(void)
 {
@@ -83,12 +84,14 @@ int main(void)
 
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total)
 {
-    drawPrimarySystem(currentScreenWidth, currentScreenHeight);
-    drawSecondarySystem(angle);
+    Vector2 origin = {0};
+    drawPrimarySystem(currentScreenWidth, currentScreenHeight, BLACK);
+    drawCoordinateSystem(angle, currentScreenWidth, currentScreenHeight, RED);
+    drawAngleMarker(origin, radiansToDegrees(angle));
     drawSavedCoordinates(coordinates, total, angle);
 }
 
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight)
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color)
 {
     Vector2 xAxisBegin = {
         -currentScreenWidth,
@@ -106,50 +109,13 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight)
         0,
         currentScreenHeight};
 
-    DrawLineV(xAxisBegin, xAxisEnd, BLACK);
+    DrawLineV(xAxisBegin, xAxisEnd, color);
     DrawTriangle(
         (Vector2){0, -currentScreenHeight / 2},
         (Vector2){-10, (-currentScreenHeight + 20) / 2},
         (Vector2){10, (-currentScreenHeight + 20) / 2},
-        BLACK);
-    DrawLineV(yAxisBegin, yAxisEnd, BLACK);
-}
-
-void drawSecondarySystem(float angle)
-{
-    Vector2 origin = {
-        .x = 0.0f,
-        .y = 0.0f};
-    
-    float angleSin = sin(angle);
-    float angleCos = cos(angle);
-    float angleDegrees = radiansToDegrees(angle);
-    float axisLength = 900;
-
-    // Angle marker
-    char markerText[10];
-    snprintf(markerText, 10, "%f", -angleDegrees);
-    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
-    DrawText(markerText, 60, 20, 10, GRAY);
-
-    Vector2 xAxisBegin = {
-        angleCos * axisLength,
-        angleSin * axisLength};
-
-    Vector2 xAxisEnd = {
-        -angleCos * axisLength,
-        -angleSin * axisLength};
-
-    Vector2 yAxisBegin = {
-        angleSin * axisLength,
-        -angleCos * axisLength};
-
-    Vector2 yAxisEnd = {
-        -angleSin * axisLength,
-        angleCos * axisLength};
-
-    DrawLineV(xAxisBegin, xAxisEnd, RED);
-    DrawLineV(yAxisBegin, yAxisEnd, RED);
+        color);
+    DrawLineV(yAxisBegin, yAxisEnd, color);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index)
@@ -159,23 +125,26 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     if ((*index) >= 5)
         (*index) = 0;
 
-    Coordinate* newCoordinate = coordinateCreate();
+    Coordinate *newCoordinate = coordinateCreate();
     coordinateFill(newCoordinate, position, angle, 6, BLUE);
 
     coordinates[(*index)++] = *newCoordinate;
-    DrawCircleV(newCoordinate->vector, 6, BLUE);
-    DrawText(newCoordinate->primaryLabel, newCoordinate->vector.x+5, newCoordinate->vector.y+5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->vector.x+10, newCoordinate->vector.y+10, 10, RED);
+    DrawCircleV(newCoordinate->primaryPostion, 6, BLUE);
+    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPostion.x + 5, newCoordinate->primaryPostion.y + 5, 10, BLACK);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPostion.x + 10, newCoordinate->primaryPostion.y + 10, 10, RED);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
-        DrawCircleV(coordinates[i].vector, coordinates[i].radius, coordinates[i].color);
-        DrawText(coordinates[i].primaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+5, 10, BLACK);
-        updateSecondaryLabel(coordinates+i, angle);
-        DrawText(coordinates[i].secondaryLabel, coordinates[i].vector.x+5, coordinates[i].vector.y+17, 10, RED);
+        Vector2 primaryCoordinates = coordinates[i].primaryPostion;
+        Vector2 secondaryCoordinates = coordinates[i].secondaryPostion;
+        drawComponentsSystem(primaryCoordinates, 0, BLACK);
+        DrawCircleV(primaryCoordinates, coordinates[i].radius, coordinates[i].color);
+        DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
+        updateSecondaryLabel(coordinates + i, angle);
+        DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
     }
 }
 
@@ -214,7 +183,41 @@ Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
         .x = camera.target.x - camera.offset.x,
         .y = camera.target.y - camera.offset.y};
 
-    return (Vector2) {
+    return (Vector2){
         .x = mousePosition.x + cameraCompensation.x,
         .y = mousePosition.y + cameraCompensation.y};
+}
+
+void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color)
+{
+    float angleSin = sin(angle);
+    float angleCos = cos(angle);
+    float axisLength = screenWidth * screenHeight;
+
+    Vector2 xAxisBegin = {
+        angleCos * axisLength,
+        angleSin * axisLength};
+
+    Vector2 xAxisEnd = {
+        -angleCos * axisLength,
+        -angleSin * axisLength};
+
+    Vector2 yAxisBegin = {
+        angleSin * axisLength,
+        -angleCos * axisLength};
+
+    Vector2 yAxisEnd = {
+        -angleSin * axisLength,
+        angleCos * axisLength};
+
+    DrawLineV(xAxisBegin, xAxisEnd, color);
+    DrawLineV(yAxisBegin, yAxisEnd, color);
+}
+
+void drawAngleMarker(Vector2 origin, float angleDegrees)
+{
+    char markerText[10];
+    snprintf(markerText, 10, "%f", -angleDegrees);
+    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
+    DrawText(markerText, 60, 20, 10, GRAY);
 }
