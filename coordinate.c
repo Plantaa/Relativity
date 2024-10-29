@@ -35,5 +35,5 @@ void updateSecondaryLabel(Coordinate* coordinate, float angle)
     Vector2 secondarySystemCoordinates = {
         .x = coordinate->vector.x * angleCos + coordinate->vector.y * angleSin,
         .y = -coordinate->vector.x * angleSin + coordinate->vector.y * angleCos};
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", secondarySystemCoordinates.x, secondarySystemCoordinates.y);
+    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", secondarySystemCoordinates.x, -secondarySystemCoordinates.y);
 }
