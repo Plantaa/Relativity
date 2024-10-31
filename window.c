@@ -16,6 +16,7 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
+bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 
 int main(void)
 {
@@ -70,7 +71,11 @@ int main(void)
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
+            bool found = selectCoordinate(mousePositionCompensated, coordinates, total);
+            if (!found)
+            {
+                drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
+            }
         }
 
         EndMode2D();
@@ -134,14 +139,34 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPostion.x + 10, newCoordinate->primaryPostion.y + 10, 10, RED);
 }
 
+bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
+{
+    bool found = false;
+    for (int i = 0; i < total; i++)
+    {
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPostion, coordinates[i].radius))
+        {
+            found = true;
+            coordinates[i].selected = true;
+        }
+        else
+        {
+            coordinates[i].selected = false;
+        }
+    }
+    return found;
+}
+
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
+        Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
+
         Vector2 primaryCoordinates = coordinates[i].primaryPostion;
         Vector2 secondaryCoordinates = coordinates[i].secondaryPostion;
         drawComponentsSystem(primaryCoordinates, 0, BLACK);
-        DrawCircleV(primaryCoordinates, coordinates[i].radius, coordinates[i].color);
+        DrawCircleV(primaryCoordinates, coordinates[i].radius, drawColor);
         DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
         updateSecondaryLabel(coordinates + i, angle);
         DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
