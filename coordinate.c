@@ -11,7 +11,7 @@ Coordinate *coordinateCreate()
 
 void coordinateFill(Coordinate *coordinate, Vector2 position, float angle, int radius, Color color)
 {
-    coordinate->primaryPostion = position;
+    coordinate->primaryPosition = position;
     coordinate->secondaryPostion = convertToSystemB(position, angle);
     coordinate->radius = radius;
     coordinate->color = color;
@@ -25,7 +25,7 @@ void coordinateFill(Coordinate *coordinate, Vector2 position, float angle, int r
 
 void updateSecondaryLabel(Coordinate *coordinate, float angle)
 {
-    coordinate->secondaryPostion = convertToSystemB(coordinate->primaryPostion, angle);
+    coordinate->secondaryPostion = convertToSystemB(coordinate->primaryPosition, angle);
     snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPostion.x, -coordinate->secondaryPostion.y);
 }
 

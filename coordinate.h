@@ -6,7 +6,7 @@
 
 typedef struct coordinate
 {
-    Vector2 primaryPostion;
+    Vector2 primaryPosition;
     Vector2 secondaryPostion;
     int radius;
     Color color;

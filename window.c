@@ -134,9 +134,27 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     coordinateFill(newCoordinate, position, angle, 6, BLUE);
 
     coordinates[(*index)++] = *newCoordinate;
-    DrawCircleV(newCoordinate->primaryPostion, 6, BLUE);
-    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPostion.x + 5, newCoordinate->primaryPostion.y + 5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPostion.x + 10, newCoordinate->primaryPostion.y + 10, 10, RED);
+    DrawCircleV(newCoordinate->primaryPosition, 6, BLUE);
+    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
+}
+
+bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
+{
+    bool found = false;
+    for (int i = 0; i < total; i++)
+    {
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPostion, coordinates[i].radius))
+        {
+            found = true;
+            coordinates[i].selected = true;
+        }
+        else
+        {
+            coordinates[i].selected = false;
+        }
+    }
+    return found;
 }
 
 bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
@@ -163,7 +181,7 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
     {
         Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
 
-        Vector2 primaryCoordinates = coordinates[i].primaryPostion;
+        Vector2 primaryCoordinates = coordinates[i].primaryPosition;
         Vector2 secondaryCoordinates = coordinates[i].secondaryPostion;
         drawComponentsSystem(primaryCoordinates, 0, BLACK);
         DrawCircleV(primaryCoordinates, coordinates[i].radius, drawColor);
