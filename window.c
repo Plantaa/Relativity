@@ -16,7 +16,8 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
-bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
+Coordinate* selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
+void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate* coordinate);
 
 int main(void)
 {
@@ -69,10 +70,11 @@ int main(void)
 
         drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
+        Coordinate* coordinateSelected = NULL; 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            bool found = selectCoordinate(mousePositionCompensated, coordinates, total);
-            if (!found)
+            coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+            if (!coordinateSelected)
             {
                 drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
             }
@@ -139,14 +141,14 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
 }
 
-bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
+Coordinate* selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
 {
-    bool found = false;
+    Coordinate* coordinate = NULL;
     for (int i = 0; i < total; i++)
     {
-        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPostion, coordinates[i].radius))
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
         {
-            found = true;
+            coordinate = &coordinates[i];
             coordinates[i].selected = true;
         }
         else
@@ -154,26 +156,30 @@ bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
             coordinates[i].selected = false;
         }
     }
-    return found;
+    return coordinate;
 }
 
-bool selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
+void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate* coordinate)
 {
-    bool found = false;
-    for (int i = 0; i < total; i++)
-    {
-        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPostion, coordinates[i].radius))
-        {
-            found = true;
-            coordinates[i].selected = true;
-        }
-        else
-        {
-            coordinates[i].selected = false;
-        }
-    }
-    return found;
+    int boxWidth = 300;
+    int boxHeight = 100; 
+    int padding = 10;
+
+    Rectangle legendBox = {
+        .x = currentScreenWidth - (boxWidth + padding),
+        .y = currentScreenHeight - (boxHeight + padding),
+        .width = boxWidth,
+        .height = boxHeight
+    };
+
+    DrawRectangleRec(legendBox, Fade(GRAY, 0.7f));
+    DrawRectangleLinesEx(legendBox, 2, RED);
+
+    DrawText("Legend: ", legendBox.x + 10, legendBox.y + 10, 10, BLACK);
+    DrawText(coordinate->primaryLabel, legendBox.x + 10, legendBox.y + 30, 5, BLACK);
+    DrawText(coordinate->secondaryLabel, legendBox.x + 10, legendBox.y + 40, 5, RED);
 }
+
 
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
