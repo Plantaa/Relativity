@@ -129,16 +129,16 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     coordinateFill(newCoordinate, position, angle, 6, BLUE);
 
     coordinates[(*index)++] = *newCoordinate;
-    DrawCircleV(newCoordinate->primaryPostion, 6, BLUE);
-    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPostion.x + 5, newCoordinate->primaryPostion.y + 5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPostion.x + 10, newCoordinate->primaryPostion.y + 10, 10, RED);
+    DrawCircleV(newCoordinate->primaryPosition, 6, BLUE);
+    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
-        Vector2 primaryCoordinates = coordinates[i].primaryPostion;
+        Vector2 primaryCoordinates = coordinates[i].primaryPosition;
         Vector2 secondaryCoordinates = coordinates[i].secondaryPostion;
         drawComponentsSystem(primaryCoordinates, 0, BLACK);
         DrawCircleV(primaryCoordinates, coordinates[i].radius, coordinates[i].color);
