@@ -45,6 +45,8 @@ int main(void)
     int total = 0;
     Coordinate coordinates[5];
     float angle = 45 * (PI / 180);
+    Coordinate* coordinateSelected = NULL; 
+
 
     while (!WindowShouldClose()) // When "ESC" -> Close
     {
@@ -70,7 +72,6 @@ int main(void)
 
         drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
-        Coordinate* coordinateSelected = NULL; 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
             coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
@@ -81,6 +82,10 @@ int main(void)
         }
 
         EndMode2D();
+
+        if(coordinateSelected) {
+            drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
+        } 
 
         EndDrawing();
     }
