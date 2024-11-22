@@ -1,21 +1,19 @@
-CC		 = gcc
-BIN		 = relativity
-OBJ      = window.o coordinate.o utils.o
-LINKOBJ  = window.o coordinate.o utils.o
+CC       = gcc
+BIN      = relativity
+OBJDIR   = build
+SRCS     = window.c coordinate.c utils.c
+OBJS     = $(SRCS:%.c=$(OBJDIR)/%.o)
 CFLAGS   = -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
-RM       = rm.exe -f
+RM       = rm -rf
 
-$(BIN): $(OBJ)
-	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS) -lm -lraylib
+$(BIN): $(OBJS)
+	$(CC) $(OBJS) -o $(BIN) $(LIBS) -lm -lraylib
 
-window.o: window.c
-	$(CC) -c window.c -o window.o $(CFLAGS)
+$(OBJDIR)/%.o: %.c | $(OBJDIR)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
-coordinate.o: coordinate.c
-	$(CC) -c coordinate.c -o coordinate.o $(CFLAGS)
-
-utils.o: utils.c
-	$(CC) -c utils.c -o utils.o $(CFLAGS)
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 clean:
-	rm -f *.o
+	$(RM) $(OBJDIR) $(BIN)
