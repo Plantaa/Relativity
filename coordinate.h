@@ -12,6 +12,7 @@ typedef struct coordinate
     Color color;
     char* primaryLabel;
     char* secondaryLabel;
+    bool selected;
     char name;
     bool active;
 }Coordinate;
