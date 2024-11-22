@@ -7,16 +7,19 @@
 typedef struct coordinate
 {
     Vector2 primaryPosition;
-    Vector2 secondaryPostion;
+    Vector2 secondaryPosition;
     int radius;
     Color color;
     char* primaryLabel;
     char* secondaryLabel;
+    char name;
+    bool active;
 }Coordinate;
 
 Coordinate* coordinateCreate();
-void coordinateFill(Coordinate* coordinate, Vector2 position, float angle, int radius, Color color);
+void coordinateFill(Coordinate* coordinate, const char name, Vector2 position, float angle, int radius, Color color);
 void updateSecondaryLabel(Coordinate* coordinate, float angle);
 void drawComponentsSystem(Vector2 point, float theta, Color color);
+void printCoordinate(Coordinate* coordinate);
 
 #endif
