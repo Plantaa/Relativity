@@ -7,13 +7,6 @@
 #include "coordinate.h"
 #include "utils.h"
 
-/**
- * 
- * - [ ] TODO: Quando criar, já selecionar a coordenada.
- * - [ ] TODO: Possibilidade de alterar valor pela legenda  
- * 
- */
-
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
