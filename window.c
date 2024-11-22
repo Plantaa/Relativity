@@ -3,22 +3,25 @@
 
 #include "raylib.h"
 #include "math.h"
+
 #include "coordinate.h"
 #include "utils.h"
-#include "alphabet.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
 void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index, int *alphabet_index);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate* selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate* coordinate);
+<<<<<<< HEAD
 void clearCoordinates(Coordinate *coordinates, int total);
+=======
+>>>>>>> cebde6791ac056f27c8d969caaf20c39e8550de1
 
 int main(void)
 {
@@ -37,19 +40,19 @@ int main(void)
         .rotation = 0.0f,
         .zoom = 1.0f};
 
+    // Camera state
     bool isMoving = false;
     Vector2 mouseDrag = {0};
 
     // Tracking of saved coordinates
     int index = 0;
     int total = 0;
-    int alphabet_index = 0;
-    Coordinate coordinates[26];
+    Coordinate coordinates[5];
     float angle = 45 * (PI / 180);
     Coordinate* coordinateSelected = NULL; 
 
 
-    while (!WindowShouldClose()) 
+    while (!WindowShouldClose()) // When "ESC" -> Close
     {
 
         int currentScreenWidth = GetScreenWidth();
@@ -61,6 +64,7 @@ int main(void)
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
 
         BeginDrawing();
+<<<<<<< HEAD
         {
             ClearBackground(RAYWHITE);
 
@@ -90,6 +94,37 @@ int main(void)
 
         }
         
+=======
+
+        ClearBackground(RAYWHITE);
+
+        BeginMode2D(camera);
+
+        Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
+
+        if (IsKeyPressed(KEY_R))
+        {
+            setSecondarySystemAngle(mousePositionCompensated, &angle);
+        }
+
+        drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+            if (!coordinateSelected)
+            {
+                drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
+            }
+        }
+
+        EndMode2D();
+
+        if(coordinateSelected) {
+            drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
+        } 
+
+>>>>>>> cebde6791ac056f27c8d969caaf20c39e8550de1
         EndDrawing();
     }
 
@@ -133,26 +168,20 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color co
     DrawLineV(yAxisBegin, yAxisEnd, color);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index, int *alphabet_index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index)
 {
-    if ((*total)++ >= 26)
-    {
-        (*total) = 26;
-        return;
-    }
-
-    if ((*index) >= 26)
+    if ((*total)++ >= 5)
+        (*total) = 5;
+    if ((*index) >= 5)
         (*index) = 0;
 
     Coordinate *newCoordinate = coordinateCreate();
-    coordinateFill(newCoordinate, alphabet[*alphabet_index], position, angle, 6, BLUE);
+    coordinateFill(newCoordinate, position, angle, 6, BLUE);
 
     coordinates[(*index)++] = *newCoordinate;
-    DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
+    DrawCircleV(newCoordinate->primaryPosition, 6, BLUE);
     DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
     DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
-
-    (*alphabet_index)+=1;
 }
 
 Coordinate* selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
@@ -199,6 +228,7 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
+<<<<<<< HEAD
         if(coordinates[i].active == true)
         {
             Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
@@ -211,6 +241,17 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
             DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
         }
 
+=======
+        Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
+
+        Vector2 primaryCoordinates = coordinates[i].primaryPosition;
+        Vector2 secondaryCoordinates = coordinates[i].secondaryPostion;
+        drawComponentsSystem(primaryCoordinates, 0, BLACK);
+        DrawCircleV(primaryCoordinates, coordinates[i].radius, drawColor);
+        DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
+        updateSecondaryLabel(coordinates + i, angle);
+        DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
+>>>>>>> cebde6791ac056f27c8d969caaf20c39e8550de1
     }
 }
 
