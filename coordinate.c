@@ -25,7 +25,6 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, coordinate->secondaryPosition.y);
 
     printCoordinate(coordinate);
-
 }
 
 void updateSecondaryLabel(Coordinate *coordinate, float angle)
@@ -55,7 +54,7 @@ void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition,
     Vector2 xComponent = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
     drawDottedLine(primaryPosition, xComponent, dotNumber, color);
 
-    Vector2 yComponent = convertToSystemA((Vector2) {0, secondaryPosition.y}, angle);
+    Vector2 yComponent = convertToSystemA((Vector2){0, secondaryPosition.y}, angle);
     drawDottedLine(primaryPosition, yComponent, dotNumber, color);
 }
 
