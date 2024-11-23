@@ -44,16 +44,16 @@ void drawPrimaryComponents(Vector2 point, Color color)
     drawDottedLine(point, xComponent, dotNumber, color);
 
     // Project y component along the rotated y-axis
-    Vector2 yComponentB = (Vector2){0, point.y};
-    drawDottedLine(point, yComponentB, dotNumber, color);
+    Vector2 yComponent = (Vector2){0, point.y};
+    drawDottedLine(point, yComponent, dotNumber, color);
 }
 
 void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
 {
     int dotNumber = 50;
 
-    Vector2 xComponentB = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
-    drawDottedLine(primaryPosition, xComponentB, dotNumber, color);
+    Vector2 xComponent = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
+    drawDottedLine(primaryPosition, xComponent, dotNumber, color);
 
     Vector2 yComponent = convertToSystemA((Vector2) {0, secondaryPosition.y}, angle);
     drawDottedLine(primaryPosition, yComponent, dotNumber, color);
