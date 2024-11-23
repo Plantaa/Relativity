@@ -98,9 +98,9 @@ int main(void)
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total)
 {
     Vector2 origin = {0};
+    drawAngleMarker(origin, radiansToDegrees(angle));
     drawPrimarySystem(currentScreenWidth, currentScreenHeight, BLACK);
     drawCoordinateSystem(angle, currentScreenWidth, currentScreenHeight, RED);
-    drawAngleMarker(origin, radiansToDegrees(angle));
     drawSavedCoordinates(coordinates, total, angle);
 }
 
