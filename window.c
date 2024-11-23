@@ -203,8 +203,9 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
         {
             Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
             Vector2 primaryCoordinates = coordinates[i].primaryPosition;
-            Vector2 secondaryCoordinates = coordinates[i].secondaryPosition;
-            drawComponentsSystem(primaryCoordinates, 0, BLACK);
+            Vector2 secondaryCoordinates =coordinates[i].secondaryPosition;
+            drawPrimaryComponents(primaryCoordinates, BLACK);
+            drawSecondaryComponents(primaryCoordinates, secondaryCoordinates, angle, RED);
             DrawCircleV(primaryCoordinates, coordinates[i].radius, drawColor);
             DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
             updateSecondaryLabel(coordinates + i, angle);

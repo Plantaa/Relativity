@@ -35,17 +35,28 @@ void updateSecondaryLabel(Coordinate *coordinate, float angle)
 }
 
 // Function to draw the components for System
-void drawComponentsSystem(Vector2 point, float theta, Color color)
+void drawPrimaryComponents(Vector2 point, Color color)
 {
     int dotNumber = 50;
 
     // Project x component along the rotated x-axis
-    Vector2 xComponentB = convertToSystemB((Vector2){point.x, 0}, theta);
-    drawDottedLine(point, xComponentB, dotNumber, color);
+    Vector2 xComponent = (Vector2){point.x, 0};
+    drawDottedLine(point, xComponent, dotNumber, color);
 
     // Project y component along the rotated y-axis
-    Vector2 yComponentB = convertToSystemB((Vector2){0, point.y}, theta);
+    Vector2 yComponentB = (Vector2){0, point.y};
     drawDottedLine(point, yComponentB, dotNumber, color);
+}
+
+void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
+{
+    int dotNumber = 50;
+
+    Vector2 xComponentB = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
+    drawDottedLine(primaryPosition, xComponentB, dotNumber, color);
+
+    Vector2 yComponent = convertToSystemA((Vector2) {0, secondaryPosition.y}, angle);
+    drawDottedLine(primaryPosition, yComponent, dotNumber, color);
 }
 
 void printCoordinate(Coordinate *coord)
