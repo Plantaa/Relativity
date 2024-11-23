@@ -142,10 +142,9 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     if ((*index) >= 26)
         (*index) = 0;
 
-    Coordinate *newCoordinate = coordinateCreate();
+    Coordinate *newCoordinate = coordinates+(*index)++;
     coordinateFill(newCoordinate, alphabet[*alphabet_index], position, angle, 6, BLUE);
 
-    coordinates[(*index)++] = *newCoordinate;
     DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
     DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
     DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
