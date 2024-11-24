@@ -6,14 +6,15 @@
 
 typedef struct coordinate
 {
+    char name;
     Vector2 primaryPosition;
     Vector2 secondaryPosition;
     int radius;
     Color color;
     char *primaryLabel;
     char *secondaryLabel;
+    char *nameLabel;
     bool selected;
-    char name;
     bool active;
 } Coordinate;
 

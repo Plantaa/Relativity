@@ -148,6 +148,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
     DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
     DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
+    DrawText(newCoordinate->nameLabel, newCoordinate->primaryPosition.x - 13, newCoordinate->primaryPosition.y - 13, 10, DARKBLUE);
 
     (*alphabet_index) += 1;
 }
@@ -205,6 +206,7 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
             DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
             updateSecondaryLabel(coordinates + i, angle);
             DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
+            DrawText(coordinates[i].nameLabel, coordinates[i].primaryPosition.x - 13, coordinates[i].primaryPosition.y - 13, 10, DARKBLUE);
         }
     }
 }
