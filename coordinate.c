@@ -30,10 +30,12 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     printCoordinate(coordinate);
 }
 
-void updateSecondaryLabel(Coordinate *coordinate, float angle)
+void drawCoordinate(Coordinate coordinate)
 {
-    coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, -coordinate->secondaryPosition.y);
+    DrawCircleV(coordinate.primaryPosition, coordinate.radius, coordinate.color);
+    DrawText(coordinate.primaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 5, 10, BLACK);
+    DrawText(coordinate.secondaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 17, 10, RED);
+    DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
 }
 
 // Function to draw the components for System
@@ -73,4 +75,10 @@ void printCoordinate(Coordinate *coord)
     printf("  Primary Label: %s\n", coord->primaryLabel != NULL ? coord->primaryLabel : "N/A");
     printf("  Secondary Label: %s\n", coord->secondaryLabel != NULL ? coord->secondaryLabel : "N/A");
     printf("\n");
+}
+
+void updateSecondaryLabel(Coordinate *coordinate, float angle)
+{
+    coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
+    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, -coordinate->secondaryPosition.y);
 }

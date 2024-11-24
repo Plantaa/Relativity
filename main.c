@@ -77,13 +77,12 @@ int main(void)
 
             bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
 
-            if (!isCoordinateSelected) {
+            if (!isCoordinateSelected)
+            {
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
                     coordinateFill(&sampleCoordinate, '?', mousePositionCompensated, angle, 6, BLUE);
-                    DrawCircleV(mousePositionCompensated, 6.f, BLUE);
-                    DrawText(sampleCoordinate.primaryLabel, sampleCoordinate.primaryPosition.x + 5, sampleCoordinate.primaryPosition.y + 5, 10, BLACK);
-                    DrawText(sampleCoordinate.secondaryLabel, sampleCoordinate.primaryPosition.x + 5, sampleCoordinate.primaryPosition.y + 17, 10, RED);
+                    drawCoordinate(sampleCoordinate);
                 }
                 if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                     drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
@@ -151,13 +150,10 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     if ((*index) >= 26)
         (*index) = 0;
 
-    Coordinate *newCoordinate = coordinates+(*index)++;
+    Coordinate *newCoordinate = coordinates + (*index)++;
     coordinateFill(newCoordinate, alphabet[*alphabet_index], position, angle, 6, BLUE);
 
-    DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
-    DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 17, 10, RED);
-    DrawText(newCoordinate->nameLabel, newCoordinate->primaryPosition.x - 13, newCoordinate->primaryPosition.y - 13, 10, DARKBLUE);
+    drawCoordinate(*newCoordinate);
 
     (*alphabet_index) += 1;
 }
@@ -206,16 +202,11 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
     {
         if (coordinates[i].active == true)
         {
-            Color drawColor = coordinates[i].selected ? GREEN : coordinates[i].color;
-            Vector2 primaryCoordinates = coordinates[i].primaryPosition;
-            Vector2 secondaryCoordinates = coordinates[i].secondaryPosition;
-            drawPrimaryComponents(primaryCoordinates, BLACK);
-            drawSecondaryComponents(primaryCoordinates, secondaryCoordinates, angle, RED);
-            DrawCircleV(primaryCoordinates, coordinates[i].radius, drawColor);
-            DrawText(coordinates[i].primaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 5, 10, BLACK);
+            coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
+            drawPrimaryComponents(coordinates[i].primaryPosition, BLACK);
+            drawSecondaryComponents(coordinates[i].primaryPosition, coordinates[i].secondaryPosition, angle, RED);
             updateSecondaryLabel(coordinates + i, angle);
-            DrawText(coordinates[i].secondaryLabel, primaryCoordinates.x + 5, primaryCoordinates.y + 17, 10, RED);
-            DrawText(coordinates[i].nameLabel, coordinates[i].primaryPosition.x - 13, coordinates[i].primaryPosition.y - 13, 10, DARKBLUE);
+            drawCoordinate(coordinates[i]);
         }
     }
 }
