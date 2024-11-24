@@ -25,7 +25,7 @@ int main(void)
 
     const int screenWidth = 900;
     const int screenHeight = 600;
-    InitWindow(screenWidth, screenHeight, "Relative Systems");
+    InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
     // Camera config
