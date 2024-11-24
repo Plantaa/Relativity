@@ -147,7 +147,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
 
     DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
     DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 17, 10, RED);
     DrawText(newCoordinate->nameLabel, newCoordinate->primaryPosition.x - 13, newCoordinate->primaryPosition.y - 13, 10, DARKBLUE);
 
     (*alphabet_index) += 1;
