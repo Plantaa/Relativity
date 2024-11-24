@@ -24,6 +24,9 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     coordinate->secondaryLabel = (char *)malloc(sizeof(char) * 20);
     snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, coordinate->secondaryPosition.y);
 
+    coordinate->nameLabel = (char *)malloc(sizeof(char) * 2);
+    snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
+
     printCoordinate(coordinate);
 }
 
