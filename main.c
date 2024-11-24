@@ -44,6 +44,7 @@ int main(void)
     int index = 0;
     int total = 0;
     int alphabet_index = 0;
+    Coordinate sampleCoordinate;
     Coordinate coordinates[26];
     float angle = 45 * (PI / 180);
     Coordinate *coordinateSelected = NULL;
@@ -72,17 +73,25 @@ int main(void)
             drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-            {
                 coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-                if (!coordinateSelected)
+
+            bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+
+            if (!isCoordinateSelected) {
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
+                    coordinateFill(&sampleCoordinate, '?', mousePositionCompensated, angle, 6, BLUE);
+                    DrawCircleV(mousePositionCompensated, 6.f, BLUE);
+                    DrawText(sampleCoordinate.primaryLabel, sampleCoordinate.primaryPosition.x + 5, sampleCoordinate.primaryPosition.y + 5, 10, BLACK);
+                    DrawText(sampleCoordinate.secondaryLabel, sampleCoordinate.primaryPosition.x + 5, sampleCoordinate.primaryPosition.y + 17, 10, RED);
                 }
+                if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
             }
 
             EndMode2D();
 
-            if (coordinateSelected)
+            if (isCoordinateSelected)
             {
                 drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
             }
@@ -147,7 +156,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
 
     DrawCircleV(newCoordinate->primaryPosition, newCoordinate->radius, BLUE);
     DrawText(newCoordinate->primaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 5, 10, BLACK);
-    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 10, newCoordinate->primaryPosition.y + 10, 10, RED);
+    DrawText(newCoordinate->secondaryLabel, newCoordinate->primaryPosition.x + 5, newCoordinate->primaryPosition.y + 17, 10, RED);
     DrawText(newCoordinate->nameLabel, newCoordinate->primaryPosition.x - 13, newCoordinate->primaryPosition.y - 13, 10, DARKBLUE);
 
     (*alphabet_index) += 1;
