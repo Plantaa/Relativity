@@ -102,12 +102,16 @@ int main(void)
                     clearSelection(coordinates, total);
                     clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
                     savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+
                     if (clearButtonClicked)
                         clearCoordinates(coordinates, &total, &index);
+
                     else if (savedCoordinateClicked)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+
                     else
                         drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                        
                     isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)

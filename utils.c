@@ -46,12 +46,12 @@ void drawDottedLine(Vector2 start, Vector2 end, Color color)
     double dotX = start.x;
     double dotY = start.y;
 
-    double number = sqrt(deltaX*deltaX + deltaY*deltaY)/4;
+    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L))/4;
 
-    double deltaDotX = deltaX / number;
-    double deltaDotY = deltaY / number;
+    double deltaDotX = deltaX / dotNumber;
+    double deltaDotY = deltaY / dotNumber;
 
-    for (int i = 0; i < number; i++)
+    for (int i = 0; i < dotNumber; i++)
     {
         DrawPixel(dotX, dotY, color);
         dotX += deltaDotX;
