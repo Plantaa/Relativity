@@ -48,7 +48,11 @@ int main(void)
     int index = 0;
     int total = 26;
     Coordinate coordinates[total];
-    for (int i = 0; i < total; i++) coordinates[i].active = false;
+    for (int i = 0; i < total; i++)
+    {
+        coordinateFill(coordinates+i, alphabet[i], (Vector2) {0}, 0.f, 6, BLUE);
+        coordinates[i].active = false;
+    }
     Coordinate *coordinateSelected = NULL;
     bool isCoordinateSelected = false;
     Coordinate placeholderCoordinate;
