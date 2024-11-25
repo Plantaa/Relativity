@@ -85,38 +85,37 @@ int main(void)
         {
             ClearBackground(RAYWHITE);
 
+            if (isCoordinateSelected)
+                drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
+            
             clearButtonUpdatePostition(&clearButton, currentScreenHeight);
             clearButtonDraw(clearButton);
 
             BeginMode2D(camera);
-
-            if (IsKeyPressed(KEY_R))
-                setSecondarySystemAngle(mousePositionCompensated, &angle);
-
-            drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
-
-            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
             {
-                clearSelection(coordinates, total);
-                clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
-                savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
-                if (clearButtonClicked)
-                    clearCoordinates(coordinates, total);
-                else if (savedCoordinateClicked)
-                    coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-                else
-                    drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
-                isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+                if (IsKeyPressed(KEY_R))
+                    setSecondarySystemAngle(mousePositionCompensated, &angle);
+
+                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
+
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                {
+                    clearSelection(coordinates, total);
+                    clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
+                    savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+                    if (clearButtonClicked)
+                        clearCoordinates(coordinates, total);
+                    else if (savedCoordinateClicked)
+                        coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+                    else
+                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                    isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+                }
+                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
+                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
             }
-            else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
-                drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
-
-            EndMode2D();
-            
-            if (isCoordinateSelected)
-                drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
+            EndMode2D();            
         }
-
         EndDrawing();
     }
 
