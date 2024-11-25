@@ -38,7 +38,7 @@ Vector2 convertToSystemB(Vector2 point, float angle)
     return pointB;
 }
 
-void drawDottedLine(Vector2 start, Vector2 end, int dotNumber, Color color)
+void drawDottedLine(Vector2 start, Vector2 end, Color color)
 {
     double deltaX = (end.x - start.x);
     double deltaY = (end.y - start.y);
@@ -46,10 +46,12 @@ void drawDottedLine(Vector2 start, Vector2 end, int dotNumber, Color color)
     double dotX = start.x;
     double dotY = start.y;
 
-    double deltaDotX = deltaX / dotNumber;
-    double deltaDotY = deltaY / dotNumber;
+    double number = sqrt(deltaX*deltaX + deltaY*deltaY)/4;
 
-    for (int i = 0; i < dotNumber; i++)
+    double deltaDotX = deltaX / number;
+    double deltaDotY = deltaY / number;
+
+    for (int i = 0; i < number; i++)
     {
         DrawPixel(dotX, dotY, color);
         dotX += deltaDotX;

@@ -39,29 +39,22 @@ void drawCoordinate(Coordinate coordinate)
     DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
 }
 
-// Function to draw the components for System
 void drawPrimaryComponents(Vector2 point, Color color)
 {
-    int dotNumber = 50;
-
-    // Project x component along the rotated x-axis
     Vector2 xComponent = (Vector2){point.x, 0};
-    drawDottedLine(point, xComponent, dotNumber, color);
+    drawDottedLine(point, xComponent, color);
 
-    // Project y component along the rotated y-axis
     Vector2 yComponent = (Vector2){0, point.y};
-    drawDottedLine(point, yComponent, dotNumber, color);
+    drawDottedLine(point, yComponent, color);
 }
 
 void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
 {
-    int dotNumber = 50;
-
     Vector2 xComponent = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
-    drawDottedLine(primaryPosition, xComponent, dotNumber, color);
+    drawDottedLine(primaryPosition, xComponent, color);
 
     Vector2 yComponent = convertToSystemA((Vector2){0, secondaryPosition.y}, angle);
-    drawDottedLine(primaryPosition, yComponent, dotNumber, color);
+    drawDottedLine(primaryPosition, yComponent, color);
 }
 
 void printCoordinate(Coordinate *coord)
