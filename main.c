@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "math.h"
 #include "coordinate.h"
+#include "clear_button.h"
 #include "utils.h"
 #include "alphabet.h"
 
@@ -49,10 +50,23 @@ int main(void)
     int index = 0;
     int total = 0;
     int alphabet_index = 0;
-    Coordinate placeholderCoordinate;
+    bool isCoordinateSelected = false;
     Coordinate coordinates[26];
     Coordinate *coordinateSelected = NULL;
-    bool isCoordinateSelected = false;
+    Coordinate placeholderCoordinate;
+
+    // Clear button
+    ClearButton clearButton = {
+        .box={
+            .x=10,
+            .y=screenHeight - 40,
+            .width=100,
+            .height=30
+        },
+        .xTextPadding=30,
+        .yTextPadding=7,
+        .fontSize=15
+    };
 
     // Initial angle
     float angle = -(1.0f/4.0f) * PI;
@@ -67,14 +81,13 @@ int main(void)
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
-        Rectangle clearButton = createClearButton(300, 100, 10, 0, currentScreenHeight);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
-            drawClearButton(clearButton);
+            clearButtonDraw(clearButton);
 
             BeginMode2D(camera);
 
@@ -86,7 +99,7 @@ int main(void)
             if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
             {
                 clearSelection(coordinates, total);
-                clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton);
+                clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
                 savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
                 if (clearButtonClicked)
                     clearCoordinates(coordinates, total);
@@ -294,21 +307,6 @@ void clearCoordinates(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
         coordinates[i].active = false;
-}
-
-Rectangle createClearButton(int boxWidth, int boxHeight, int padding, int xPos, int yPos)
-{
-    return (Rectangle) {
-        .x = xPos + padding,
-        .y = yPos - (boxHeight + padding),
-        .width = boxWidth,
-        .height = boxHeight};
-}
-
-void drawClearButton(Rectangle clearButton)
-{
-    DrawRectangleRec(clearButton, Fade(GRAY, 0.7f));
-    DrawRectangleLinesEx(clearButton, 2, RED);
 }
 
 bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total)
