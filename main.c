@@ -20,8 +20,6 @@ void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
-Rectangle createClearButton(int boxWidth, int boxHeight, int padding, int screenWidth, int screenHeight);
-void drawClearButton(Rectangle clearButton);
 bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
