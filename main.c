@@ -19,6 +19,11 @@ void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
+Rectangle createClearButton(int boxWidth, int boxHeight, int padding, int screenWidth, int screenHeight);
+void drawClearButton(Rectangle clearButton);
+bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
+void clearSelection(Coordinate *coordinates, int total);
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 
 int main(void)
 {
@@ -44,10 +49,16 @@ int main(void)
     int index = 0;
     int total = 0;
     int alphabet_index = 0;
-    Coordinate sampleCoordinate;
+    Coordinate placeholderCoordinate;
     Coordinate coordinates[26];
-    float angle = 45 * (PI / 180);
     Coordinate *coordinateSelected = NULL;
+    bool isCoordinateSelected = false;
+
+    // Initial angle
+    float angle = -(1.0f/4.0f) * PI;
+
+    bool clearButtonClicked = false;
+    bool savedCoordinateClicked = false;
 
     while (!WindowShouldClose())
     {
@@ -56,44 +67,42 @@ int main(void)
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
-
+        Rectangle clearButton = createClearButton(300, 100, 10, 0, currentScreenHeight);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
+            drawClearButton(clearButton);
+
             BeginMode2D(camera);
 
             if (IsKeyPressed(KEY_R))
-            {
                 setSecondarySystemAngle(mousePositionCompensated, &angle);
-            }
 
             drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-
-            bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
-
-            if (!isCoordinateSelected)
+            if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
             {
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
-                {
-                    coordinateFill(&sampleCoordinate, '?', mousePositionCompensated, angle, 6, BLUE);
-                    drawCoordinate(sampleCoordinate);
-                }
-                if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
+                clearSelection(coordinates, total);
+                clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton);
+                savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+                if (clearButtonClicked)
+                    clearCoordinates(coordinates, total);
+                else if (savedCoordinateClicked)
+                    coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+                else
+                    drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
             }
+            else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
+                drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
 
             EndMode2D();
-
+            
             if (isCoordinateSelected)
-            {
                 drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
-            }
         }
 
         EndDrawing();
@@ -169,9 +178,7 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
             coordinates[i].selected = true;
         }
         else
-        {
             coordinates[i].selected = false;
-        }
     }
     return coordinate;
 }
@@ -220,9 +227,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
     }
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-    {
         *isMoving = false;
-    }
 
     if (*isMoving)
     {
@@ -283,4 +288,45 @@ void drawAngleMarker(Vector2 origin, float angleDegrees)
     snprintf(markerText, 10, "%f", -angleDegrees);
     DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
     DrawText(markerText, 60, 20, 10, GRAY);
+}
+
+void clearCoordinates(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+        coordinates[i].active = false;
+}
+
+Rectangle createClearButton(int boxWidth, int boxHeight, int padding, int xPos, int yPos)
+{
+    return (Rectangle) {
+        .x = xPos + padding,
+        .y = yPos - (boxHeight + padding),
+        .width = boxWidth,
+        .height = boxHeight};
+}
+
+void drawClearButton(Rectangle clearButton)
+{
+    DrawRectangleRec(clearButton, Fade(GRAY, 0.7f));
+    DrawRectangleLinesEx(clearButton, 2, RED);
+}
+
+bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total)
+{
+    for (int i = 0; i < total; i++)
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].active)
+            return true;
+    return false;
+}
+
+void clearSelection(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+        coordinates[i].selected = false;
+}
+
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
+{
+    coordinateFill(coordinate, '?', position, angle, 6, BLUE);
+    drawCoordinate(*coordinate);
 }
