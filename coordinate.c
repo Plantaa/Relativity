@@ -17,6 +17,7 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     coordinate->color = color;
     coordinate->name = name;
     coordinate->active = true;
+    coordinate->selected = false;
 
     coordinate->primaryLabel = (char *)malloc(sizeof(char) * 20);
     snprintf(coordinate->primaryLabel, 20, "(%.2f, %.2f)", position.x, -position.y);
