@@ -12,7 +12,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
 void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, int *index);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
@@ -23,6 +23,8 @@ void clearCoordinates(Coordinate *coordinates, int total);
 bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
+void initializeCoordinates(Coordinate *coordinates, int total);
+int findAvailableIndex(Coordinate *coordinates, int total);
 
 int main(void)
 {
@@ -37,7 +39,9 @@ int main(void)
         .offset = {
             .x = screenWidth / 2,
             .y = screenHeight / 2},
-        .target = {.x = 0.0f, .y = 0.0f},
+        .target = {
+            .x = 0.0f,
+            .y = 0.0f},
         .rotation = 0.0f,
         .zoom = 1.0f};
 
@@ -45,14 +49,9 @@ int main(void)
     Vector2 mouseDrag = {0};
 
     // Tracking of saved coordinates
-    int index = 0;
     int total = 26;
     Coordinate coordinates[total];
-    for (int i = 0; i < total; i++)
-    {
-        coordinateFill(coordinates+i, alphabet[i], (Vector2) {0}, 0.f, 6, BLUE);
-        coordinates[i].active = false;
-    }
+    initializeCoordinates(coordinates, total);
     Coordinate *coordinateSelected = NULL;
     bool isCoordinateSelected = false;
     Coordinate placeholderCoordinate;
@@ -124,7 +123,7 @@ int main(void)
                     isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total, &index);
+                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
             }
             EndMode2D();            
         }
@@ -171,19 +170,13 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color co
     DrawLineV(yAxisBegin, yAxisEnd, color);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, int *index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
 {
-    for (int i = 0; i < total; i++)
-    {
-        if (!coordinates[i].active)
-        {
-            *index = i;
-            break;
-        }
-    }
+    int index = findAvailableIndex(coordinates, total);
+    if (index < 0) return;
 
-    Coordinate *newCoordinate = coordinates + (*index);
-    coordinateFill(newCoordinate, alphabet[(*index)], position, angle, 6, BLUE);
+    Coordinate *newCoordinate = coordinates + index;
+    coordinateFill(newCoordinate, alphabet[index], position, angle, 6, BLUE);
 
     drawCoordinate(*newCoordinate);
 }
@@ -335,4 +328,21 @@ void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float a
 {
     coordinateFill(coordinate, '?', position, angle, 6, BLUE);
     drawCoordinate(*coordinate);
+}
+
+void initializeCoordinates(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+    {
+        coordinateFill(coordinates+i, alphabet[i], (Vector2) {0}, 0.f, 6, BLUE);
+        coordinates[i].active = false;
+    }
+}
+
+int findAvailableIndex(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+        if (!coordinates[i].active)
+            return i;
+    return -1;
 }
