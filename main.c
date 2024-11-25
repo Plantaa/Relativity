@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "math.h"
 #include "coordinate.h"
+#include "clear_button.h"
 #include "utils.h"
 #include "alphabet.h"
 
@@ -11,14 +12,17 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
 void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
 void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index, int *alphabet_index);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
 void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
-void clearCoordinates(Coordinate *coordinates, int total);
+void clearCoordinates(Coordinate *coordinates, int *total, int *index);
+bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
+void clearSelection(Coordinate *coordinates, int total);
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 
 int main(void)
 {
@@ -43,11 +47,29 @@ int main(void)
     // Tracking of saved coordinates
     int index = 0;
     int total = 0;
-    int alphabet_index = 0;
-    Coordinate sampleCoordinate;
+    bool isCoordinateSelected = false;
     Coordinate coordinates[26];
-    float angle = 45 * (PI / 180);
     Coordinate *coordinateSelected = NULL;
+    Coordinate placeholderCoordinate;
+
+    // Clear button
+    ClearButton clearButton = {
+        .box={
+            .x=10,
+            .y=screenHeight - 40,
+            .width=100,
+            .height=30
+        },
+        .xTextPadding=30,
+        .yTextPadding=7,
+        .fontSize=15
+    };
+
+    // Initial angle
+    float angle = -(1.0f/4.0f) * PI;
+
+    bool clearButtonClicked = false;
+    bool savedCoordinateClicked = false;
 
     while (!WindowShouldClose())
     {
@@ -56,46 +78,43 @@ int main(void)
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
-
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
+            if (isCoordinateSelected)
+                drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
+            
+            clearButtonUpdatePostition(&clearButton, currentScreenHeight);
+            clearButtonDraw(clearButton);
+
             BeginMode2D(camera);
-
-            if (IsKeyPressed(KEY_R))
             {
-                setSecondarySystemAngle(mousePositionCompensated, &angle);
-            }
+                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
-            drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
+                if (IsKeyPressed(KEY_R))
+                    setSecondarySystemAngle(mousePositionCompensated, &angle);
 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-
-            bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
-
-            if (!isCoordinateSelected)
-            {
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
-                    coordinateFill(&sampleCoordinate, '?', mousePositionCompensated, angle, 6, BLUE);
-                    drawCoordinate(sampleCoordinate);
+                    clearSelection(coordinates, total);
+                    clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
+                    savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+                    if (clearButtonClicked)
+                        clearCoordinates(coordinates, &total, &index);
+                    else if (savedCoordinateClicked)
+                        coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
+                    else
+                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                    isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
-                if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index, &alphabet_index);
+                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
+                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, &total, &index);
             }
-
-            EndMode2D();
-
-            if (isCoordinateSelected)
-            {
-                drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
-            }
+            EndMode2D();            
         }
-
         EndDrawing();
     }
 
@@ -139,7 +158,7 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color co
     DrawLineV(yAxisBegin, yAxisEnd, color);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index, int *alphabet_index)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int *total, int *index)
 {
     if ((*total)++ >= 26)
     {
@@ -150,12 +169,10 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     if ((*index) >= 26)
         (*index) = 0;
 
-    Coordinate *newCoordinate = coordinates + (*index)++;
-    coordinateFill(newCoordinate, alphabet[*alphabet_index], position, angle, 6, BLUE);
+    Coordinate *newCoordinate = coordinates + (*index);
+    coordinateFill(newCoordinate, alphabet[(*index)++], position, angle, 6, BLUE);
 
     drawCoordinate(*newCoordinate);
-
-    (*alphabet_index) += 1;
 }
 
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
@@ -169,9 +186,7 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
             coordinates[i].selected = true;
         }
         else
-        {
             coordinates[i].selected = false;
-        }
     }
     return coordinate;
 }
@@ -220,9 +235,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
     }
 
     if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-    {
         *isMoving = false;
-    }
 
     if (*isMoving)
     {
@@ -283,4 +296,31 @@ void drawAngleMarker(Vector2 origin, float angleDegrees)
     snprintf(markerText, 10, "%f", -angleDegrees);
     DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
     DrawText(markerText, 60, 20, 10, GRAY);
+}
+
+void clearCoordinates(Coordinate *coordinates, int *total, int *index)
+{
+    for (int i = 0; i < *total; i++)
+        coordinates[i].active = false;
+    *total = *index = 0;
+}
+
+bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total)
+{
+    for (int i = 0; i < total; i++)
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].active)
+            return true;
+    return false;
+}
+
+void clearSelection(Coordinate *coordinates, int total)
+{
+    for (int i = 0; i < total; i++)
+        coordinates[i].selected = false;
+}
+
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
+{
+    coordinateFill(coordinate, '?', position, angle, 6, BLUE);
+    drawCoordinate(*coordinate);
 }
