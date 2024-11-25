@@ -92,10 +92,10 @@ int main(void)
 
             BeginMode2D(camera);
             {
+                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
+
                 if (IsKeyPressed(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
-
-                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
