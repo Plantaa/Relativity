@@ -15,5 +15,6 @@ typedef struct clear_button
 ClearButton *clearButtonCreate();
 void clearButtonFill(ClearButton *button, Rectangle box, int xTextPadding, int yTextPadding, int fontSize);
 void clearButtonDraw(ClearButton button);
+void clearButtonUpdatePostition(ClearButton *button, int screenHeight);
 
 #endif

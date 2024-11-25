@@ -23,3 +23,8 @@ void clearButtonDraw(ClearButton button)
     DrawRectangleLinesEx(button.box, 2, RED);
     DrawText("Clear", xTextPosition, yTextPosition, button.fontSize, BLACK);
 }
+
+void clearButtonUpdatePostition(ClearButton *button, int screenHeight)
+{
+    button->box.y = screenHeight - 40;
+}

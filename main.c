@@ -87,6 +87,7 @@ int main(void)
         {
             ClearBackground(RAYWHITE);
 
+            clearButtonUpdatePostition(&clearButton, currentScreenHeight);
             clearButtonDraw(clearButton);
 
             BeginMode2D(camera);
