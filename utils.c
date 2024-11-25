@@ -38,13 +38,15 @@ Vector2 convertToSystemB(Vector2 point, float angle)
     return pointB;
 }
 
-void drawDottedLine(Vector2 start, Vector2 end, int dotNumber, Color color)
+void drawDottedLine(Vector2 start, Vector2 end, Color color)
 {
     double deltaX = (end.x - start.x);
     double deltaY = (end.y - start.y);
 
     double dotX = start.x;
     double dotY = start.y;
+
+    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L))/4;
 
     double deltaDotX = deltaX / dotNumber;
     double deltaDotY = deltaY / dotNumber;
