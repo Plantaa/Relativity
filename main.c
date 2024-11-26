@@ -186,7 +186,7 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
     Coordinate *coordinate = NULL;
     for (int i = 0; i < total; i++)
     {
-        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
+        if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius && coordinates[i].active))
         {
             coordinate = &coordinates[i];
             coordinates[i].selected = true;
@@ -213,8 +213,11 @@ void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coo
     DrawRectangleLinesEx(legendBox, 2, RED);
 
     DrawText("Legend: ", legendBox.x + 10, legendBox.y + 10, 10, BLACK);
-    DrawText(coordinate->primaryLabel, legendBox.x + 10, legendBox.y + 30, 5, BLACK);
-    DrawText(coordinate->secondaryLabel, legendBox.x + 10, legendBox.y + 40, 5, RED);
+    DrawText(coordinate->nameLabel, legendBox.x + 10, legendBox.y + 30, 5, BLACK);
+    double distanceToOrigin = sqrt(pow(coordinate->primaryPosition.x, 2.L) + pow(coordinate->primaryPosition.y, 2.L));
+    char *distanceToOriginLabel = (char *)malloc(sizeof(char)*20);
+    snprintf(distanceToOriginLabel, 20, "%f", distanceToOrigin);
+    DrawText(distanceToOriginLabel, legendBox.x + 10, legendBox.y + 40, 5, RED);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
