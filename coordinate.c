@@ -31,9 +31,11 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     printCoordinate(coordinate);
 }
 
-void drawCoordinate(Coordinate coordinate)
+void drawCoordinate(Coordinate coordinate, float angle)
 {
     DrawCircleV(coordinate.primaryPosition, coordinate.radius, coordinate.color);
+    drawPrimaryComponents(coordinate.primaryPosition, BLACK);
+    drawSecondaryComponents(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED);
     DrawText(coordinate.primaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 5, 10, BLACK);
     DrawText(coordinate.secondaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 17, 10, RED);
     DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
