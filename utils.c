@@ -58,3 +58,13 @@ void drawDottedLine(Vector2 start, Vector2 end, Color color)
         dotY += deltaDotY;
     }
 }
+
+double metersToFeet(double meters)
+{
+    return meters / 0.3048;
+}
+
+double feetToMeters(double feet)
+{
+    return feet * 0.3048;
+}
