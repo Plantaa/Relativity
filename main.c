@@ -119,7 +119,7 @@ int main(void)
 
                     else
                         drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
-                        
+
                     isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
@@ -178,7 +178,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, alphabet[index], position, angle, 6, BLUE);
 
-    drawCoordinate(*newCoordinate);
+    drawCoordinate(*newCoordinate, angle);
 }
 
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
@@ -224,10 +224,8 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
         if (coordinates[i].active)
         {
             coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
-            drawPrimaryComponents(coordinates[i].primaryPosition, BLACK);
-            drawSecondaryComponents(coordinates[i].primaryPosition, coordinates[i].secondaryPosition, angle, RED);
             updateSecondaryLabel(coordinates + i, angle);
-            drawCoordinate(coordinates[i]);
+            drawCoordinate(coordinates[i], angle);
         }
     }
 }
@@ -327,7 +325,7 @@ void clearSelection(Coordinate *coordinates, int total)
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
 {
     coordinateFill(coordinate, '?', position, angle, 6, BLUE);
-    drawCoordinate(*coordinate);
+    drawCoordinate(*coordinate, angle);
 }
 
 void initializeCoordinates(Coordinate *coordinates, int total)
