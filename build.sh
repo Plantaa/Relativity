@@ -1,6 +1,6 @@
 #!/bin/bash
 
-gcc -c clear_button.c -o clear_button.o -g3 -std=c99 -Wall -Wextra -Wpedantic -01
+gcc -c clear_button.c -o clear_button.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 gcc -c utils.c -o utils.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 gcc -c coordinate.c -o coordinate.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 gcc -c main.c -o main.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1 `pkg-config --libs raylib` -lm
