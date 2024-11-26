@@ -122,7 +122,7 @@ int main(void)
 
                     isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
-                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !savedCoordinateClicked)
+                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !isCoordinateSelected)
                     drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
             }
             EndMode2D();            
