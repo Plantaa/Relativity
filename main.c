@@ -7,6 +7,7 @@
 #include "clear_button.h"
 #include "utils.h"
 #include "alphabet.h"
+#include "aside.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
@@ -55,6 +56,18 @@ int main(void)
     Coordinate *coordinateSelected = NULL;
     bool isCoordinateSelected = false;
     Coordinate placeholderCoordinate;
+    
+    Aside aside = 
+    {
+        .active = false,
+        .box = 
+        {
+            .x = screenWidth - 130,
+            .y = 0,
+            .height = screenHeight - 100,
+            .width = 130
+        }
+    };
 
     // Clear button
     ClearButton clearButton = {
@@ -87,6 +100,8 @@ int main(void)
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
+            updateAsidePosition(&aside, currentScreenWidth);
+            asideDraw(aside);
 
             if (isCoordinateSelected)
             {
