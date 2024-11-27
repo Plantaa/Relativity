@@ -19,11 +19,11 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     coordinate->active = true;
     coordinate->selected = false;
 
-    coordinate->primaryLabel = (char *)malloc(sizeof(char) * 20);
-    snprintf(coordinate->primaryLabel, 20, "(%.2f, %.2f)", position.x, -position.y);
+    coordinate->primaryLabel = (char *)malloc(sizeof(char) * 50);
+    snprintf(coordinate->primaryLabel, 50, "(%.2fm, %.2fft)", position.x, -metersToFeet(position.y));
 
-    coordinate->secondaryLabel = (char *)malloc(sizeof(char) * 20);
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, -coordinate->secondaryPosition.y);
+    coordinate->secondaryLabel = (char *)malloc(sizeof(char) * 50);
+    snprintf(coordinate->secondaryLabel, 50, "(%.2fm, %.2fft)", coordinate->secondaryPosition.x, -metersToFeet(coordinate->secondaryPosition.y));
 
     coordinate->nameLabel = (char *)malloc(sizeof(char) * 2);
     snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
@@ -76,5 +76,5 @@ void printCoordinate(Coordinate *coord)
 void updateSecondaryLabel(Coordinate *coordinate, float angle)
 {
     coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
-    snprintf(coordinate->secondaryLabel, 20, "(%.2f, %.2f)", coordinate->secondaryPosition.x, -coordinate->secondaryPosition.y);
+    snprintf(coordinate->secondaryLabel, 50, "(%.2fm, %.2fft)", coordinate->secondaryPosition.x, -metersToFeet(coordinate->secondaryPosition.y));
 }
