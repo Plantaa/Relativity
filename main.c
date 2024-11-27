@@ -102,7 +102,7 @@ int main(void)
             {
                 drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
-                if (IsKeyPressed(KEY_R))
+                if (IsKeyDown(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
