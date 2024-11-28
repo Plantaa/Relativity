@@ -72,8 +72,8 @@ int main(void)
     // Initial angle
     float angle = -(1.0f/4.0f) * PI;
 
-    bool clearButtonClicked = false;
-    bool savedCoordinateClicked = false;
+    bool isMouseOnClearButton = false;
+    bool isMouseOnSavedCoordinate = false;
 
     while (!WindowShouldClose())
     {
@@ -102,28 +102,31 @@ int main(void)
             {
                 drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
+                isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
+                isMouseOnSavedCoordinate = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+
                 if (IsKeyDown(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
-                    clearSelection(coordinates, total);
-                    clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
-                    savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
 
-                    if (clearButtonClicked)
+                    if (!isMouseOnClearButton && !isMouseOnSavedCoordinate)
+                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+
+
+                } else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+
+                    if (isMouseOnClearButton)
                         clearCoordinates(coordinates, total);
 
-                    else if (savedCoordinateClicked)
+                    else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-
-                    else
-                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                    
+                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
 
                     isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
-                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !isCoordinateSelected)
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
             }
             EndMode2D();            
         }
