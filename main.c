@@ -6,7 +6,6 @@
 #include "coordinate.h"
 #include "clear_button.h"
 #include "utils.h"
-#include "alphabet.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
@@ -20,7 +19,7 @@ void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
-bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
+bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 void initializeCoordinates(Coordinate *coordinates, int total);
@@ -28,75 +27,65 @@ int findAvailableIndex(Coordinate *coordinates, int total);
 
 int main(void)
 {
-
     const int screenWidth = 900;
     const int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
-    // Camera config
     Camera2D camera = {
         .offset = {
             .x = screenWidth / 2,
             .y = screenHeight / 2},
-        .target = {
-            .x = 0.0f,
-            .y = 0.0f},
+        .target = {.x = 0.0f, .y = 0.0f},
         .rotation = 0.0f,
         .zoom = 1.0f};
 
     bool isMoving = false;
     Vector2 mouseDrag = {0};
 
-    // Tracking of saved coordinates
     int total = 26;
     Coordinate coordinates[total];
     initializeCoordinates(coordinates, total);
     Coordinate *coordinateSelected = NULL;
-    bool isCoordinateSelected = false;
     Coordinate placeholderCoordinate;
 
-    // Clear button
     ClearButton clearButton = {
-        .box={
-            .x=10,
-            .y=screenHeight - 40,
-            .width=100,
-            .height=30
-        },
-        .xTextPadding=30,
-        .yTextPadding=7,
-        .fontSize=15
-    };
+        .box = {
+            .x = 10,
+            .y = screenHeight - 40,
+            .width = 100,
+            .height = 30},
+        .xTextPadding = 30,
+        .yTextPadding = 7,
+        .fontSize = 15};
 
-    // Initial angle
-    float angle = -(1.0f/4.0f) * PI;
-
-    bool clearButtonClicked = false;
-    bool savedCoordinateClicked = false;
+    float angle = -(1.0f / 4.0f) * PI;
 
     while (!WindowShouldClose())
     {
-
         int currentScreenWidth = GetScreenWidth();
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
+
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
+        clearButtonPositionUpdate(&clearButton, currentScreenHeight);
+
+        bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+        bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
+        bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
+            clearButtonDraw(clearButton);
+
             if (isCoordinateSelected)
             {
                 drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
-                if (IsKeyPressed(KEY_DELETE))
-                    coordinateSelected->active = false;
+                if (IsKeyPressed(KEY_DELETE)) coordinateSelected->active = false;
             }
-            
-            clearButtonUpdatePostition(&clearButton, currentScreenHeight);
-            clearButtonDraw(clearButton);
 
             BeginMode2D(camera);
             {
@@ -105,31 +94,23 @@ int main(void)
                 if (IsKeyDown(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
 
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !(isMouseOnClearButton || isMouseOnSavedCoordinate))
+                    drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+
+                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                 {
-                    clearSelection(coordinates, total);
-                    clearButtonClicked = CheckCollisionPointRec(mousePosition, clearButton.box);
-                    savedCoordinateClicked = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
+                    if (isMouseOnClearButton) clearCoordinates(coordinates, total);
 
-                    if (clearButtonClicked)
-                        clearCoordinates(coordinates, total);
-
-                    else if (savedCoordinateClicked)
+                    else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
 
-                    else
-                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
-
-                    isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
                 }
-                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && !clearButtonClicked && !isCoordinateSelected)
-                    drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
             }
-            EndMode2D();            
+            EndMode2D();
         }
         EndDrawing();
     }
-
     CloseWindow();
     return 0;
 }
@@ -176,7 +157,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     if (index < 0) return;
 
     Coordinate *newCoordinate = coordinates + index;
-    coordinateFill(newCoordinate, alphabet[index], position, angle, 6, BLUE);
+    coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
     drawCoordinate(*newCoordinate, angle);
 }
@@ -304,11 +285,10 @@ void drawAngleMarker(Vector2 origin, float angleDegrees)
 
 void clearCoordinates(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++)
-        coordinates[i].active = false;
+    for (int i = 0; i < total; i++) coordinates[i].active = false;
 }
 
-bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total)
+bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total)
 {
     for (int i = 0; i < total; i++)
         if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].active)
@@ -318,8 +298,7 @@ bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int 
 
 void clearSelection(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++)
-        coordinates[i].selected = false;
+    for (int i = 0; i < total; i++) coordinates[i].selected = false;
 }
 
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
@@ -332,7 +311,7 @@ void initializeCoordinates(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        coordinateFill(coordinates+i, alphabet[i], (Vector2) {0}, 0.f, 6, BLUE);
+        coordinateFill(coordinates + i, 'A' + i, (Vector2){0}, 0.f, 6, BLUE);
         coordinates[i].active = false;
     }
 }
@@ -340,7 +319,6 @@ void initializeCoordinates(Coordinate *coordinates, int total)
 int findAvailableIndex(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
-        if (!coordinates[i].active)
-            return i;
+        if (!coordinates[i].active) return i;
     return -1;
 }
