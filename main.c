@@ -6,7 +6,6 @@
 #include "coordinate.h"
 #include "clear_button.h"
 #include "utils.h"
-#include "alphabet.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
@@ -164,7 +163,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
         return;
 
     Coordinate *newCoordinate = coordinates + index;
-    coordinateFill(newCoordinate, alphabet[index], position, angle, 6, BLUE);
+    coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
     drawCoordinate(*newCoordinate, angle);
 }
@@ -320,7 +319,7 @@ void initializeCoordinates(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        coordinateFill(coordinates + i, alphabet[i], (Vector2){0}, 0.f, 6, BLUE);
+        coordinateFill(coordinates + i, 'A' + i, (Vector2){0}, 0.f, 6, BLUE);
         coordinates[i].active = false;
     }
 }
