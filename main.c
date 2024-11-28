@@ -20,7 +20,7 @@ void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
 void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
-bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total);
+bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 void initializeCoordinates(Coordinate *coordinates, int total);
@@ -28,13 +28,11 @@ int findAvailableIndex(Coordinate *coordinates, int total);
 
 int main(void)
 {
-
     const int screenWidth = 900;
     const int screenHeight = 600;
     InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
-    // Camera config
     Camera2D camera = {
         .offset = {
             .x = screenWidth / 2,
@@ -53,10 +51,8 @@ int main(void)
     Coordinate coordinates[total];
     initializeCoordinates(coordinates, total);
     Coordinate *coordinateSelected = NULL;
-    bool isCoordinateSelected = false;
     Coordinate placeholderCoordinate;
 
-    // Clear button
     ClearButton clearButton = {
         .box={
             .x=10,
@@ -69,20 +65,20 @@ int main(void)
         .fontSize=15
     };
 
-    // Initial angle
     float angle = -(1.0f/4.0f) * PI;
-
-    bool isMouseOnClearButton = false;
-    bool isMouseOnSavedCoordinate = false;
 
     while (!WindowShouldClose())
     {
-
         int currentScreenWidth = GetScreenWidth();
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
+
+        bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+
+        bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
+        bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
 
         BeginDrawing();
         {
@@ -102,20 +98,13 @@ int main(void)
             {
                 drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
 
-                isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
-                isMouseOnSavedCoordinate = clickedSavedCoordinate(coordinates, mousePositionCompensated, total);
-
                 if (IsKeyDown(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
 
-                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
-                {
-
-                    if (!isMouseOnClearButton && !isMouseOnSavedCoordinate)
+                if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !(isMouseOnClearButton || isMouseOnSavedCoordinate))
                         drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
 
-
-                } else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
 
                     if (isMouseOnClearButton)
                         clearCoordinates(coordinates, total);
@@ -125,7 +114,6 @@ int main(void)
                     
                     else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
 
-                    isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
                 }
             }
             EndMode2D();            
@@ -311,7 +299,7 @@ void clearCoordinates(Coordinate *coordinates, int total)
         coordinates[i].active = false;
 }
 
-bool clickedSavedCoordinate(Coordinate *coordinates, Vector2 mousePosition, int total)
+bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total)
 {
     for (int i = 0; i < total; i++)
         if (CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].active)
