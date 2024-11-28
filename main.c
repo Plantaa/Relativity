@@ -43,7 +43,6 @@ int main(void)
     bool isMoving = false;
     Vector2 mouseDrag = {0};
 
-    // Tracking of saved coordinates
     int total = 26;
     Coordinate coordinates[total];
     initializeCoordinates(coordinates, total);
@@ -85,8 +84,7 @@ int main(void)
             if (isCoordinateSelected)
             {
                 drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
-                if (IsKeyPressed(KEY_DELETE))
-                    coordinateSelected->active = false;
+                if (IsKeyPressed(KEY_DELETE)) coordinateSelected->active = false;
             }
 
             BeginMode2D(camera);
@@ -101,15 +99,12 @@ int main(void)
 
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                 {
-
-                    if (isMouseOnClearButton)
-                        clearCoordinates(coordinates, total);
+                    if (isMouseOnClearButton) clearCoordinates(coordinates, total);
 
                     else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
 
-                    else
-                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
+                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
                 }
             }
             EndMode2D();
@@ -159,8 +154,7 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color co
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
 {
     int index = findAvailableIndex(coordinates, total);
-    if (index < 0)
-        return;
+    if (index < 0) return;
 
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
@@ -291,8 +285,7 @@ void drawAngleMarker(Vector2 origin, float angleDegrees)
 
 void clearCoordinates(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++)
-        coordinates[i].active = false;
+    for (int i = 0; i < total; i++) coordinates[i].active = false;
 }
 
 bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total)
@@ -305,8 +298,7 @@ bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePositi
 
 void clearSelection(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++)
-        coordinates[i].selected = false;
+    for (int i = 0; i < total; i++) coordinates[i].selected = false;
 }
 
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
@@ -327,7 +319,6 @@ void initializeCoordinates(Coordinate *coordinates, int total)
 int findAvailableIndex(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
-        if (!coordinates[i].active)
-            return i;
+        if (!coordinates[i].active) return i;
     return -1;
 }
