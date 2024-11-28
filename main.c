@@ -73,16 +73,19 @@ int main(void)
         int currentScreenHeight = GetScreenHeight();
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
+
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
+        clearButtonPositionUpdate(&clearButton, currentScreenHeight);
 
         bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
-
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
 
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
+
+            clearButtonDraw(clearButton);
 
             if (isCoordinateSelected)
             {
@@ -91,9 +94,6 @@ int main(void)
                     coordinateSelected->active = false;
             }
             
-            clearButtonUpdatePostition(&clearButton, currentScreenHeight);
-            clearButtonDraw(clearButton);
-
             BeginMode2D(camera);
             {
                 drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
