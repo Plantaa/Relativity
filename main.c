@@ -6,6 +6,7 @@
 #include "coordinate.h"
 #include "clear_button.h"
 #include "utils.h"
+#include "aside.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
@@ -32,6 +33,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
+    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+
     Camera2D camera = {
         .offset = {
             .x = screenWidth / 2,
@@ -48,6 +52,18 @@ int main(void)
     initializeCoordinates(coordinates, total);
     Coordinate *coordinateSelected = NULL;
     Coordinate placeholderCoordinate;
+
+    Aside aside = 
+    {
+        .active = false,
+        .box = 
+        {
+            .x = screenWidth - 500,
+            .y = 0,
+            .height = screenHeight / 2,
+            .width = 500
+        }
+    };
 
     ClearButton clearButton = {
         .box = {
@@ -108,9 +124,19 @@ int main(void)
                 }
             }
             EndMode2D();
+
+            if (IsKeyPressed(KEY_F1)) {
+                aside.active = !aside.active;
+            } 
+            
+            if(aside.active) {
+                asidePositionUpdate(&aside, currentScreenWidth);
+                asideDraw(aside, font);
+            }
         }
         EndDrawing();
     }
+    UnloadFont(font);
     CloseWindow();
     return 0;
 }
