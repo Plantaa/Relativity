@@ -24,7 +24,7 @@ void clearButtonDraw(ClearButton button)
     DrawText("Clear", xTextPosition, yTextPosition, button.fontSize, BLACK);
 }
 
-void clearButtonUpdatePostition(ClearButton *button, int screenHeight)
+void clearButtonPositionUpdate(ClearButton *button, int screenHeight)
 {
     button->box.y = screenHeight - 40;
 }

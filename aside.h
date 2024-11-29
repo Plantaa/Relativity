@@ -10,9 +10,10 @@ typedef struct aside
 } Aside;
 
 Aside *asideCreate();
-void openAside(Aside *aside);
-void closeAside(Aside *aside);
+void asideOpen(Aside *aside);
+void asideClose(Aside *aside);
 void asideDraw(Aside aside);
-void updateAsidePosition(Aside *aside, int screenWidth);
+void asidePositionUpdate(Aside *aside, int screenWidth);
+void asideFill();
 
 #endif
