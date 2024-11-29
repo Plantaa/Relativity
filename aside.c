@@ -22,33 +22,39 @@ void asideFill(Aside aside, Font font)
     int gap = 24;
     int textHeight = aside.box.y + gap;
     int justifyLeft = aside.box.x + 3;
-    int fontSizeTitle = 22;
-    int fontSizeDescription = 16;
-    Vector2 textPositionTitle = { .x = justifyLeft, .y = textHeight };
-    Vector2 textPositionDescription = { .x = justifyLeft, .y = textHeight + gap };
+    int titleFontSize = 22;
+    int descriptionFontSize = 16;
+    Vector2 titleTextPosition = { .x = justifyLeft, .y = textHeight };
+    Vector2 descriptionTextPostition = { .x = justifyLeft, .y = textHeight + gap };
 
-    DrawTextEx(font, "[F1]", textPositionTitle, fontSizeTitle, 2, BLACK);
-    DrawTextEx(font, "Abrir/Fechar este menu de ajuda", textPositionDescription, fontSizeDescription, 2, GRAY);
-    textPositionTitle.y += 46;
-    textPositionDescription.y += 46;
+    DrawTextEx(font, "[F1]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Abrir/Fechar este menu de ajuda", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[Botão direito + Mouse]", textPositionTitle, fontSizeTitle, 2, BLACK);
-    DrawTextEx(font, "Aperte e segure para mover a tela", textPositionDescription, fontSizeDescription, 2, GRAY);
-    textPositionTitle.y += 46;
-    textPositionDescription.y += 46;
+    DrawTextEx(font, "[Botão direito + Mouse]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Aperte e segure para mover a tela", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[Botão Esquerdo + Mouse]", textPositionTitle, fontSizeTitle, 2, BLACK);
-    DrawTextEx(font, "Segure para posicionar uma coordenada e solte para criar", textPositionDescription, fontSizeDescription, 2, GRAY);
-    textPositionTitle.y += 46;
-    textPositionDescription.y += 46;
+    DrawTextEx(font, "[Botão Esquerdo + Mouse]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Segure para posicionar uma coordenada, e solte para criar", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[R]", textPositionTitle, fontSizeTitle, 2, BLACK);
-    DrawTextEx(font, "Defini o ângulo do 2 eixo", textPositionDescription, fontSizeDescription, 2, GRAY);
-    textPositionTitle.y += 46;
-    textPositionDescription.y += 46;
+    DrawTextEx(font, "[R]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Define o ângulo do segundo eixo", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[Del]", textPositionTitle, fontSizeTitle, 2, BLACK);
-    DrawTextEx(font, "Remove uma coordenada selecionada", textPositionDescription, fontSizeDescription, 2, GRAY);
+    DrawTextEx(font, "[Del]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Remove uma coordenada selecionada", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
+
+    DrawTextEx(font, "[Espaço]", titleTextPosition, titleFontSize, 2, BLACK);
+    DrawTextEx(font, "Recentraliza a câmera", descriptionTextPostition, descriptionFontSize, 2, GRAY);
+    
 }
 
 
