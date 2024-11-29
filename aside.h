@@ -12,8 +12,8 @@ typedef struct aside
 Aside *asideCreate();
 void asideOpen(Aside *aside);
 void asideClose(Aside *aside);
-void asideDraw(Aside aside);
+void asideDraw(Aside aside, Font font);
 void asidePositionUpdate(Aside *aside, int screenWidth);
-void asideFill();
+void asideFill(Aside aside, Font font);
 
 #endif

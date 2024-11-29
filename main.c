@@ -33,6 +33,9 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
+    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+
     Camera2D camera = {
         .offset = {
             .x = screenWidth / 2,
@@ -55,10 +58,10 @@ int main(void)
         .active = false,
         .box = 
         {
-            .x = screenWidth - 300,
+            .x = screenWidth - 500,
             .y = 0,
             .height = screenHeight / 2,
-            .width = 300
+            .width = 500
         }
     };
 
@@ -128,11 +131,12 @@ int main(void)
             
             if(aside.active) {
                 asidePositionUpdate(&aside, currentScreenWidth);
-                asideDraw(aside);
+                asideDraw(aside, font);
             }
         }
         EndDrawing();
     }
+    UnloadFont(font);
     CloseWindow();
     return 0;
 }

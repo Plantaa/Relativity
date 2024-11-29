@@ -17,39 +17,45 @@ void asideClose(Aside *aside)
     aside->active = false;
 }
 
-void asideFill(Aside aside) 
+void asideFill(Aside aside, Font font) 
 {
-    int gap = 10;
-    int textHeight = aside.box.y + (gap);
+    int gap = 24;
+    int textHeight = aside.box.y + gap;
     int justifyLeft = aside.box.x + 3;
-    int fontSizeTitle = 10;
-    int fontSizeDescription = 5;
+    int fontSizeTitle = 22;
+    int fontSizeDescription = 16;
+    Vector2 textPositionTitle = { .x = justifyLeft, .y = textHeight };
+    Vector2 textPositionDescription = { .x = justifyLeft, .y = textHeight + gap };
 
-    DrawText("[F1]", justifyLeft, textHeight, fontSizeTitle, BLACK);
-    DrawText("Abrir/Fechar este menu de ajuda", justifyLeft, textHeight + gap, fontSizeDescription, GRAY);
-    textHeight += 30;
+    DrawTextEx(font, "[F1]", textPositionTitle, fontSizeTitle, 2, BLACK);
+    DrawTextEx(font, "Abrir/Fechar este menu de ajuda", textPositionDescription, fontSizeDescription, 2, GRAY);
+    textPositionTitle.y += 46;
+    textPositionDescription.y += 46;
 
-    DrawText("[Botão direito + Mouse]", justifyLeft, textHeight, fontSizeTitle, BLACK);
-    DrawText("Aperte e segure para mover a tela", justifyLeft, textHeight + gap, fontSizeDescription, GRAY);
-    textHeight += 30;
+    DrawTextEx(font, "[Botão direito + Mouse]", textPositionTitle, fontSizeTitle, 2, BLACK);
+    DrawTextEx(font, "Aperte e segure para mover a tela", textPositionDescription, fontSizeDescription, 2, GRAY);
+    textPositionTitle.y += 46;
+    textPositionDescription.y += 46;
 
-    DrawText("[Botão Esquerdo + Mouse]", justifyLeft, textHeight, fontSizeTitle, BLACK);
-    DrawText("Segure para posicionar uma coordenada e solte para criar", justifyLeft, textHeight + gap, fontSizeDescription, GRAY);
-    textHeight += 30;
+    DrawTextEx(font, "[Botão Esquerdo + Mouse]", textPositionTitle, fontSizeTitle, 2, BLACK);
+    DrawTextEx(font, "Segure para posicionar uma coordenada e solte para criar", textPositionDescription, fontSizeDescription, 2, GRAY);
+    textPositionTitle.y += 46;
+    textPositionDescription.y += 46;
 
-    DrawText("[R]", justifyLeft, textHeight, fontSizeTitle, BLACK);
-    DrawText("Defini o ângulo do 2 eixo", justifyLeft, textHeight + gap, fontSizeDescription, GRAY);
-    textHeight += 30;
+    DrawTextEx(font, "[R]", textPositionTitle, fontSizeTitle, 2, BLACK);
+    DrawTextEx(font, "Defini o ângulo do 2 eixo", textPositionDescription, fontSizeDescription, 2, GRAY);
+    textPositionTitle.y += 46;
+    textPositionDescription.y += 46;
 
-    DrawText("[Del]", justifyLeft, textHeight, fontSizeTitle, BLACK);
-    DrawText("Remove uma coordenada selecionada", justifyLeft, textHeight + gap, fontSizeDescription, GRAY);
+    DrawTextEx(font, "[Del]", textPositionTitle, fontSizeTitle, 2, BLACK);
+    DrawTextEx(font, "Remove uma coordenada selecionada", textPositionDescription, fontSizeDescription, 2, GRAY);
 }
 
 
-void asideDraw(Aside aside)
+void asideDraw(Aside aside, Font font)
 {
     DrawRectangleRec(aside.box, WHITE);
-    asideFill(aside);
+    asideFill(aside, font);
 }
 
 void asidePositionUpdate(Aside *aside, int screenWidth)
