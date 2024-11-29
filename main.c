@@ -130,20 +130,20 @@ void drawEveryFrame(int screenWidth, int screenHeight, float angle, Coordinate *
 void drawPrimarySystem(int screenWidth, int screenHeight, Color color, Camera2D camera)
 {
     Vector2 xAxisBegin = {
-        -screenWidth,
+        camera.target.x - screenWidth,
         0};
 
     Vector2 xAxisEnd = {
-        screenWidth,
+        camera.target.x + screenWidth,
         0};
 
     Vector2 yAxisBegin = {
         0,
-        -screenHeight};
+        camera.target.y - screenHeight};
 
     Vector2 yAxisEnd = {
         0,
-        screenHeight};
+        camera.target.y + screenHeight};
 
     DrawLineV(xAxisBegin, xAxisEnd, color);
     DrawLineV(yAxisBegin, yAxisEnd, color);
