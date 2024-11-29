@@ -8,8 +8,8 @@
 #include "utils.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total);
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color);
+void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera);
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color, Camera2D camera);
 void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
@@ -24,6 +24,8 @@ void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 void initializeCoordinates(Coordinate *coordinates, int total);
 int findAvailableIndex(Coordinate *coordinates, int total);
+void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight);
+void drawAxisOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
 
 int main(void)
 {
@@ -68,6 +70,7 @@ int main(void)
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
 
+        updateCameraOffset(&camera, currentScreenWidth, currentScreenHeight);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
         clearButtonPositionUpdate(&clearButton, currentScreenHeight);
 
@@ -89,7 +92,7 @@ int main(void)
 
             BeginMode2D(camera);
             {
-                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total);
+                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total, camera);
 
                 if (IsKeyDown(KEY_R))
                     setSecondarySystemAngle(mousePositionCompensated, &angle);
@@ -115,16 +118,16 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total)
+void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera)
 {
     Vector2 origin = {0};
     drawAngleMarker(origin, radiansToDegrees(angle));
-    drawPrimarySystem(currentScreenWidth, currentScreenHeight, BLACK);
+    drawPrimarySystem(currentScreenWidth, currentScreenHeight, BLACK, camera);
     drawCoordinateSystem(angle, currentScreenWidth, currentScreenHeight, RED);
     drawSavedCoordinates(coordinates, total, angle);
 }
 
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color)
+void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color, Camera2D camera)
 {
     Vector2 xAxisBegin = {
         -currentScreenWidth,
@@ -143,12 +146,9 @@ void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color co
         currentScreenHeight};
 
     DrawLineV(xAxisBegin, xAxisEnd, color);
-    DrawTriangle(
-        (Vector2){0, -currentScreenHeight / 2},
-        (Vector2){-10, (-currentScreenHeight + 20) / 2},
-        (Vector2){10, (-currentScreenHeight + 20) / 2},
-        color);
     DrawLineV(yAxisBegin, yAxisEnd, color);
+
+    drawAxisOrientationArrows(camera, currentScreenWidth, currentScreenHeight, color);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
@@ -321,4 +321,38 @@ int findAvailableIndex(Coordinate *coordinates, int total)
     for (int i = 0; i < total; i++)
         if (!coordinates[i].active) return i;
     return -1;
+}
+
+void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight)
+{
+    camera->offset = (Vector2){
+            .x = screenWidth / 2,
+            .y = screenHeight / 2};
+}
+
+void drawAxisOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
+{
+    double triangleSide = 12;
+    double widthOffset = screenWidth/2;
+    double heightOffset = -screenHeight/2;
+    DrawTriangle(
+        (Vector2){0, camera.target.y + heightOffset},
+        (Vector2){-triangleSide/2, camera.target.y + triangleSide + heightOffset},
+        (Vector2){triangleSide/2, camera.target.y + triangleSide + heightOffset},
+        DARKGRAY);
+    DrawTriangleLines(
+        (Vector2){0, camera.target.y + heightOffset},
+        (Vector2){-triangleSide/2, camera.target.y + triangleSide + heightOffset},
+        (Vector2){triangleSide/2, camera.target.y + triangleSide + heightOffset},
+        color);
+    DrawTriangle(
+        (Vector2){camera.target.x + widthOffset, 0},
+        (Vector2){camera.target.x - triangleSide + widthOffset, -triangleSide/2},
+        (Vector2){camera.target.x - triangleSide + widthOffset, triangleSide/2},
+        DARKGRAY);
+    DrawTriangleLines(
+        (Vector2){camera.target.x + widthOffset, 0},
+        (Vector2){camera.target.x - triangleSide + widthOffset, -triangleSide/2},
+        (Vector2){camera.target.x - triangleSide + widthOffset, triangleSide/2},
+        color);
 }
