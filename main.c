@@ -8,8 +8,8 @@
 #include "utils.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera);
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color, Camera2D camera);
+void drawEveryFrame(int screenWidth, int ScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera);
+void drawPrimarySystem(int screenWidth, int ScreenHeight, Color color, Camera2D camera);
 void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
@@ -17,7 +17,7 @@ void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
-void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate);
+void drawLegend(int screenWidth, int ScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
 bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
@@ -25,7 +25,7 @@ void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float a
 void initializeCoordinates(Coordinate *coordinates, int total);
 int findAvailableIndex(Coordinate *coordinates, int total);
 void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight);
-void drawAxisOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
+void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
 
 int main(void)
 {
@@ -118,37 +118,37 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(int currentScreenWidth, int currentScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera)
+void drawEveryFrame(int screenWidth, int screenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera)
 {
     Vector2 origin = {0};
     drawAngleMarker(origin, radiansToDegrees(angle));
-    drawPrimarySystem(currentScreenWidth, currentScreenHeight, BLACK, camera);
-    drawCoordinateSystem(angle, currentScreenWidth, currentScreenHeight, RED);
+    drawPrimarySystem(screenWidth, screenHeight, BLACK, camera);
+    drawCoordinateSystem(angle, screenWidth, screenHeight, RED);
     drawSavedCoordinates(coordinates, total, angle);
 }
 
-void drawPrimarySystem(int currentScreenWidth, int currentScreenHeight, Color color, Camera2D camera)
+void drawPrimarySystem(int screenWidth, int screenHeight, Color color, Camera2D camera)
 {
     Vector2 xAxisBegin = {
-        -currentScreenWidth,
+        -screenWidth,
         0};
 
     Vector2 xAxisEnd = {
-        currentScreenWidth,
+        screenWidth,
         0};
 
     Vector2 yAxisBegin = {
         0,
-        -currentScreenHeight};
+        -screenHeight};
 
     Vector2 yAxisEnd = {
         0,
-        currentScreenHeight};
+        screenHeight};
 
     DrawLineV(xAxisBegin, xAxisEnd, color);
     DrawLineV(yAxisBegin, yAxisEnd, color);
 
-    drawAxisOrientationArrows(camera, currentScreenWidth, currentScreenHeight, color);
+    drawAxiiOrientationArrows(camera, screenWidth, screenHeight, color);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
@@ -178,15 +178,15 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
     return coordinate;
 }
 
-void drawLegend(int currentScreenWidth, int currentScreenHeight, Coordinate *coordinate)
+void drawLegend(int screenWidth, int screenHeight, Coordinate *coordinate)
 {
     int boxWidth = 300;
     int boxHeight = 100;
     int padding = 10;
 
     Rectangle legendBox = {
-        .x = currentScreenWidth - (boxWidth + padding),
-        .y = currentScreenHeight - (boxHeight + padding),
+        .x = screenWidth - (boxWidth + padding),
+        .y = screenHeight - (boxHeight + padding),
         .width = boxWidth,
         .height = boxHeight};
 
@@ -330,7 +330,7 @@ void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight)
             .y = screenHeight / 2};
 }
 
-void drawAxisOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
+void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
 {
     double triangleSide = 12;
     double widthOffset = screenWidth/2;
