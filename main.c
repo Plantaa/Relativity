@@ -86,6 +86,7 @@ int main(void)
         updateCameraOffset(&camera, currentScreenWidth, currentScreenHeight);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
         clearButtonPositionUpdate(&clearButton, currentScreenHeight);
+        asidePositionUpdate(&aside, currentScreenWidth);
 
         bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
@@ -127,14 +128,8 @@ int main(void)
             }
             EndMode2D();
 
-            if (IsKeyPressed(KEY_F1)) {
-                aside.active = !aside.active;
-            } 
-            
-            if(aside.active) {
-                asidePositionUpdate(&aside, currentScreenWidth);
-                asideDraw(aside, font);
-            }
+            if (IsKeyPressed(KEY_F1)) aside.active = !aside.active;
+            if (aside.active) asideDraw(aside, font);
         }
         EndDrawing();
     }
@@ -154,21 +149,11 @@ void drawEveryFrame(int screenWidth, int screenHeight, float angle, Coordinate *
 
 void drawPrimarySystem(int screenWidth, int screenHeight, Color color, Camera2D camera)
 {
-    Vector2 xAxisBegin = {
-        camera.target.x - screenWidth,
-        0};
+    Vector2 xAxisBegin = { camera.target.x - screenWidth, 0 };
+    Vector2 xAxisEnd = { camera.target.x + screenWidth, 0 };
 
-    Vector2 xAxisEnd = {
-        camera.target.x + screenWidth,
-        0};
-
-    Vector2 yAxisBegin = {
-        0,
-        camera.target.y - screenHeight};
-
-    Vector2 yAxisEnd = {
-        0,
-        camera.target.y + screenHeight};
+    Vector2 yAxisBegin = { 0, camera.target.y - screenHeight };
+    Vector2 yAxisEnd = { 0, camera.target.y + screenHeight };
 
     DrawLineV(xAxisBegin, xAxisEnd, color);
     DrawLineV(yAxisBegin, yAxisEnd, color);
@@ -197,8 +182,7 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
             coordinate = &coordinates[i];
             coordinates[i].selected = true;
         }
-        else
-            coordinates[i].selected = false;
+        else coordinates[i].selected = false;
     }
     return coordinate;
 }
