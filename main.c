@@ -106,8 +106,6 @@ int main(void)
 
             BeginMode2D(camera);
             {
-                if (IsKeyPressed(KEY_SPACE)) recenterCamera(&camera); 
-
                 drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total, camera);
 
                 if (IsKeyDown(KEY_R))
@@ -226,8 +224,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
         *mouseDrag = mousePosition;
     }
 
-    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-        *isMoving = false;
+    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) *isMoving = false;
 
     if (*isMoving)
     {
@@ -238,6 +235,8 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 
         *mouseDrag = mousePosition;
     }
+
+    if (IsKeyPressed(KEY_SPACE)) recenterCamera(camera);
 }
 
 void setSecondarySystemAngle(Vector2 position, float *angle)
