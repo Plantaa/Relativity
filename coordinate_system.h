@@ -3,7 +3,6 @@
 
 #include "raylib.h"
 #include "axis.h"
-#include "triangle.h"
 
 typedef struct coordinate_system
 {
