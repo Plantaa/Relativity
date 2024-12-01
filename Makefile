@@ -1,8 +1,7 @@
 CC       = gcc
 BIN      = relativity
 OBJDIR   = build
-SRCS     = main.c coordinate.c utils.c clear_button.c aside.c
-OBJS     = $(SRCS:%.c=$(OBJDIR)/%.o)
+SRCS     = main.c coordinate.c utils.c clear_button.c aside.c coordinate_system.c
 CFLAGS   = -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 RM       = rm -rf
 
