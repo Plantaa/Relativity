@@ -28,20 +28,20 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     coordinate->nameLabel = (char *)malloc(sizeof(char) * 2);
     snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
 
-    printCoordinate(coordinate);
+    coordinatePrint(coordinate);
 }
 
-void drawCoordinate(Coordinate coordinate, float angle)
+void coordinateDraw(Coordinate coordinate, float angle)
 {
     DrawCircleV(coordinate.primaryPosition, coordinate.radius, coordinate.color);
-    drawPrimaryComponents(coordinate.primaryPosition, BLACK);
-    drawSecondaryComponents(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED);
+    coordinatePrimaryComponentsDraw(coordinate.primaryPosition, BLACK);
+    coordinateSecondaryComponentsDraw(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED);
     DrawText(coordinate.primaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 5, 10, BLACK);
     DrawText(coordinate.secondaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 17, 10, RED);
     DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
 }
 
-void drawPrimaryComponents(Vector2 point, Color color)
+void coordinatePrimaryComponentsDraw(Vector2 point, Color color)
 {
     Vector2 xComponent = (Vector2){point.x, 0};
     drawDottedLine(point, xComponent, color);
@@ -50,7 +50,7 @@ void drawPrimaryComponents(Vector2 point, Color color)
     drawDottedLine(point, yComponent, color);
 }
 
-void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
+void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
 {
     Vector2 xComponent = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
     drawDottedLine(primaryPosition, xComponent, color);
@@ -59,7 +59,7 @@ void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition,
     drawDottedLine(primaryPosition, yComponent, color);
 }
 
-void printCoordinate(Coordinate *coord)
+void coordinatePrint(Coordinate *coord)
 {
     printf("Coordinate Details:\n");
     printf("  Name: %c\n", coord->name);
@@ -73,7 +73,7 @@ void printCoordinate(Coordinate *coord)
     printf("\n");
 }
 
-void updateSecondaryLabel(Coordinate *coordinate, float angle)
+void coordinateSecondaryLabelUpdate(Coordinate *coordinate, float angle)
 {
     coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
     snprintf(coordinate->secondaryLabel, 50, "(%.2fm, %.2fft)", coordinate->secondaryPosition.x, -metersToFeet(coordinate->secondaryPosition.y));

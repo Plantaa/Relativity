@@ -20,10 +20,10 @@ typedef struct coordinate
 
 Coordinate *coordinateCreate();
 void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, float angle, int radius, Color color);
-void drawCoordinate(Coordinate coordinate, float angle);
-void drawPrimaryComponents(Vector2 point, Color color);
-void drawSecondaryComponents(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color);
-void printCoordinate(Coordinate *coordinate);
-void updateSecondaryLabel(Coordinate *coordinate, float angle);
+void coordinateDraw(Coordinate coordinate, float angle);
+void coordinatePrimaryComponentsDraw(Vector2 point, Color color);
+void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color);
+void coordinatePrint(Coordinate *coordinate);
+void coordinateSecondaryLabelUpdate(Coordinate *coordinate, float angle);
 
 #endif
