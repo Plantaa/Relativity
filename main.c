@@ -127,9 +127,8 @@ int main(void)
                 }
             }
             EndMode2D();
-
-            if (IsKeyPressed(KEY_F1)) aside.active = !aside.active;
-            if (aside.active) asideDraw(aside, font);
+            drawAside(&aside, font, currentScreenWidth);
+            
         }
         EndDrawing();
     }
@@ -170,6 +169,15 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
     drawCoordinate(*newCoordinate, angle);
+}
+
+void drawAside(Aside *aside, Font font, int currentScreenWidth) {
+    if (IsKeyPressed(KEY_F1)) aside->active = !aside->active;
+    if (aside->active) {
+        asideDraw(*aside, font);
+    } else {
+        DrawTextEx(font, "[F1] - Abrir Menu", (Vector2) { .x = currentScreenWidth - 130, .y = 0 }, 16, 1, BLACK);
+    };
 }
 
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
