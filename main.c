@@ -28,6 +28,7 @@ int findAvailableIndex(Coordinate *coordinates, int total);
 void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight);
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
 void recenterCamera(Camera2D *camera);
+void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
@@ -171,12 +172,12 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     drawCoordinate(*newCoordinate, angle);
 }
 
-void drawAside(Aside *aside, Font font, int currentScreenWidth) {
+void drawAside(Aside *aside, Font font, int screenWidth) {
     if (IsKeyPressed(KEY_F1)) aside->active = !aside->active;
     if (aside->active) {
         asideDraw(*aside, font);
     } else {
-        DrawTextEx(font, "[F1] - Abrir Menu", (Vector2) { .x = currentScreenWidth - 130, .y = 0 }, 16, 1, BLACK);
+        DrawTextEx(font, "[F1] - Abrir Menu", (Vector2) { .x = screenWidth - 130, .y = 0 }, 16, 1, BLACK);
     };
 }
 
