@@ -7,6 +7,7 @@
 #include "clear_button.h"
 #include "utils.h"
 #include "aside.h"
+#include "legend.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
 void drawEveryFrame(int screenWidth, int ScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera);
@@ -18,7 +19,6 @@ void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
 Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
-void drawLegend(int screenWidth, int ScreenHeight, Coordinate *coordinate);
 void clearCoordinates(Coordinate *coordinates, int total);
 bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total);
 void clearSelection(Coordinate *coordinates, int total);
@@ -65,6 +65,16 @@ int main(void)
             .height = screenHeight / 2,
             .width = 500}};
 
+    Legend legend = {
+        .active = false,
+        .box = {
+            .x = screenWidth - (300 + 10),
+            .y = screenHeight - (100 + 10),
+            .width = 300,
+            .height = 100
+        }
+    };
+
     ClearButton clearButton = {
         .box = {
             .x = 10,
@@ -73,7 +83,7 @@ int main(void)
             .height = 30},
         .xTextPadding = 30,
         .yTextPadding = 7,
-        .fontSize = 15};
+        .fontSize = 16};
 
     float angle = -(1.0f / 4.0f) * PI;
 
@@ -81,6 +91,7 @@ int main(void)
     {
         int currentScreenWidth = GetScreenWidth();
         int currentScreenHeight = GetScreenHeight();
+        Vector2 currentScreenDimensions = { .x = currentScreenWidth, .y = currentScreenHeight };
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
 
@@ -88,8 +99,8 @@ int main(void)
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
         clearButtonPositionUpdate(&clearButton, currentScreenHeight);
         asidePositionUpdate(&aside, currentScreenWidth);
+        legendPositionUpdate(&legend, currentScreenDimensions);
 
-        bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
 
@@ -97,13 +108,7 @@ int main(void)
         {
             ClearBackground(RAYWHITE);
 
-            clearButtonDraw(clearButton);
-
-            if (isCoordinateSelected)
-            {
-                drawLegend(currentScreenWidth, currentScreenHeight, coordinateSelected);
-                if (IsKeyPressed(KEY_DELETE)) coordinateSelected->active = false;
-            }
+            clearButtonDraw(clearButton, font);
 
             BeginMode2D(camera);
             {
@@ -119,7 +124,10 @@ int main(void)
 
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                 {
-                    if (isMouseOnClearButton) clearCoordinates(coordinates, total);
+                    if (isMouseOnClearButton) {
+                        clearCoordinates(coordinates, total);
+                        coordinateSelected = NULL;
+                    }
 
                     else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
@@ -129,7 +137,15 @@ int main(void)
             }
             EndMode2D();
             drawAside(&aside, font, currentScreenWidth);
-            
+            bool isCoordinateSelected = (coordinateSelected && coordinateSelected->selected);
+            if (isCoordinateSelected)
+            {
+                legendDraw(legend, coordinateSelected, font);
+                if (IsKeyPressed(KEY_DELETE)) {
+                    coordinateSelected->active = false;
+                    coordinateSelected = NULL;
+                }
+            }
         }
         EndDrawing();
     }
@@ -194,26 +210,6 @@ Coordinate *selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int
         else coordinates[i].selected = false;
     }
     return coordinate;
-}
-
-void drawLegend(int screenWidth, int screenHeight, Coordinate *coordinate)
-{
-    int boxWidth = 300;
-    int boxHeight = 100;
-    int padding = 10;
-
-    Rectangle legendBox = {
-        .x = screenWidth - (boxWidth + padding),
-        .y = screenHeight - (boxHeight + padding),
-        .width = boxWidth,
-        .height = boxHeight};
-
-    DrawRectangleRec(legendBox, Fade(GRAY, 0.7f));
-    DrawRectangleLinesEx(legendBox, 2, RED);
-
-    DrawText("Legend: ", legendBox.x + 10, legendBox.y + 10, 10, BLACK);
-    DrawText(coordinate->primaryLabel, legendBox.x + 10, legendBox.y + 30, 5, BLACK);
-    DrawText(coordinate->secondaryLabel, legendBox.x + 10, legendBox.y + 40, 5, RED);
 }
 
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)

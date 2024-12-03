@@ -7,16 +7,6 @@ Aside *asideCreate()
     return (Aside *)malloc(sizeof(Aside));
 }
 
-void asideOpen(Aside *aside)
-{
-    aside->active = true;
-}
-
-void asideClose(Aside *aside)
-{
-    aside->active = false;
-}
-
 void asideFill(Aside aside, Font font) 
 {
     int gap = 24;
