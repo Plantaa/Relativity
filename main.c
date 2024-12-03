@@ -116,9 +116,13 @@ int main(void)
             BeginMode2D(camera);
             {
                 drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
+                clearSelection(coordinates, total);
+
+                if(coordinateSelected >= 0) coordinates[coordinateSelected].selected = true;
 
                 if (IsKeyDown(KEY_R))
                     coordinateSystemAngleUpdate(&secondarySystem, currentScreenDimensions, calculateAngle(origin, mousePositionCompensated));
+
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !(isMouseOnClearButton || isMouseOnSavedCoordinate))
                     drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle);
 
@@ -130,11 +134,8 @@ int main(void)
                         coordinateSelected = -1;
                     }
                     else if (isMouseOnSavedCoordinate)
-                    {
-                        clearSelection(coordinates, total);
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-                        coordinates[coordinateSelected].selected = true;
-                    }
+                        
                     else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total);
                 }
             }
