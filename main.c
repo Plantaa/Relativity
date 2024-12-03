@@ -30,11 +30,15 @@ void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
-    const int screenWidth = 900;
-    const int screenHeight = 600;
-    Vector2 screenDimensions = {.x = screenWidth, .y = screenHeight};
-    InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
+    Vector2 screenDimensions = {.x = 900, .y = 600};
+
+    InitWindow(screenDimensions.x, screenDimensions.y, "Parábola dos Geômetras no Reino de Emma");
+
     SetTargetFPS(60);
+
+    Image background = LoadImage("assets/Oreum.png");
+    Texture2D backgroundTexture = LoadTextureFromImage(background);
+    UnloadImage(background);
 
     Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
     SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
@@ -43,8 +47,8 @@ int main(void)
 
     Camera2D camera = {
         .offset = {
-            .x = screenWidth / 2,
-            .y = screenHeight / 2},
+            .x = screenDimensions.x / 2,
+            .y = screenDimensions.y / 2},
         .target = origin,
         .rotation = 0.0f,
         .zoom = 1.0f};
@@ -68,23 +72,23 @@ int main(void)
     Aside aside = {
         .active = false,
         .box = {
-            .x = screenWidth - 500,
+            .x = screenDimensions.x - 500,
             .y = 0,
-            .height = screenHeight / 2,
+            .height = screenDimensions.y / 2,
             .width = 500}};
 
     Legend legend = {
         .active = false,
         .box = {
-            .x = screenWidth - (300 + 10),
-            .y = screenHeight - (100 + 10),
+            .x = screenDimensions.x - (300 + 10),
+            .y = screenDimensions.y - (100 + 10),
             .width = 300,
             .height = 100}};
 
     ClearButton clearButton = {
         .box = {
             .x = 10,
-            .y = screenHeight - 40,
+            .y = screenDimensions.y - 40,
             .width = 100,
             .height = 30},
         .xTextPadding = 30,
@@ -110,6 +114,8 @@ int main(void)
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
+
+            DrawTextureV(backgroundTexture,origin, WHITE);
 
             clearButtonDraw(clearButton, font);
 
@@ -152,6 +158,7 @@ int main(void)
         }
         EndDrawing();
     }
+    UnloadTexture(backgroundTexture);
     UnloadFont(font);
     CloseWindow();
     return 0;

@@ -27,8 +27,6 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
 
     coordinate->nameLabel = (char *)malloc(sizeof(char) * 2);
     snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
-
-    coordinatePrint(coordinate);
 }
 
 void coordinateDraw(Coordinate coordinate, float angle)
