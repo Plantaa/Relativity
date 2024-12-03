@@ -115,8 +115,6 @@ int main(void)
 
             BeginMode2D(camera);
             {
-                if (IsKeyPressed(KEY_SPACE)) camera.target = (Vector2){0}; 
-                
                 drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
 
                 if (IsKeyDown(KEY_R))
@@ -230,7 +228,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
         *mouseDrag = mousePosition;
     }
 
-    if (IsKeyPressed(KEY_SPACE)) recenterCamera(camera);
+    if (IsKeyPressed(KEY_SPACE)) camera->target = (Vector2){0};
 }
 
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
