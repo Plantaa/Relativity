@@ -15,13 +15,12 @@ void clearButtonFill(ClearButton *button, Rectangle box, int xTextPadding, int y
     button->fontSize = fontSize;
 }
 
-void clearButtonDraw(ClearButton button)
+void clearButtonDraw(ClearButton button, Font font)
 {
-    int xTextPosition = button.box.x + button.xTextPadding;
-    int yTextPosition = button.box.y + button.yTextPadding;
-    DrawRectangleRec(button.box, Fade(GRAY, 0.7f));
+    Vector2 textPosition = { .x = button.box.x + button.xTextPadding, .y = button.box.y + button.yTextPadding };
+    DrawRectangleRec(button.box, WHITE);
     DrawRectangleLinesEx(button.box, 2, RED);
-    DrawText("Clear", xTextPosition, yTextPosition, button.fontSize, BLACK);
+    DrawTextEx(font, "Limpar", textPosition, button.fontSize, 1 ,BLACK);
 }
 
 void clearButtonPositionUpdate(ClearButton *button, int screenHeight)
