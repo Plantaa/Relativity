@@ -188,11 +188,16 @@ int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
+        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].selected == false)
         {
+            if(coordinates[i].selected == true) {
+                coordinates[i].selected = false;
+                return -1;
+            }
+
             coordinates[i].selected = true;
             return i;
-        }
+        } 
     }
     return -1;
 }
