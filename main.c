@@ -24,9 +24,8 @@ void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 void initializeCoordinates(Coordinate *coordinates, int total);
 int findAvailableIndex(Coordinate *coordinates, int total);
-void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight);
+void updateCameraOffset(Camera2D *camera, Vector2 screenDimensions);
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
-void recenterCamera(Camera2D *camera);
 void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
@@ -80,9 +79,7 @@ int main(void)
             .x = screenWidth - (300 + 10),
             .y = screenHeight - (100 + 10),
             .width = 300,
-            .height = 100
-        }
-    };
+            .height = 100}};
 
     ClearButton clearButton = {
         .box = {
@@ -96,17 +93,15 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        int currentScreenWidth = GetScreenWidth();
-        int currentScreenHeight = GetScreenHeight();
-        Vector2 currentScreenDimensions = { .x = currentScreenWidth, .y = currentScreenHeight };
+        Vector2 currentScreenDimensions = { .x = GetScreenWidth(), .y = GetScreenHeight() };
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
 
         coordinateSystemValuesUpdate(&primarySystem, currentScreenDimensions, camera);
-        updateCameraOffset(&camera, currentScreenWidth, currentScreenHeight);
+        updateCameraOffset(&camera, currentScreenDimensions);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
-        clearButtonPositionUpdate(&clearButton, currentScreenHeight);
-        asidePositionUpdate(&aside, currentScreenWidth);
+        clearButtonPositionUpdate(&clearButton, currentScreenDimensions.y);
+        asidePositionUpdate(&aside, currentScreenDimensions.x);
         legendPositionUpdate(&legend, currentScreenDimensions);
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
@@ -120,7 +115,7 @@ int main(void)
 
             BeginMode2D(camera);
             {
-                if (IsKeyPressed(KEY_SPACE)) recenterCamera(&camera); 
+                if (IsKeyPressed(KEY_SPACE)) camera.target = (Vector2){0}; 
                 
                 drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
 
@@ -146,7 +141,7 @@ int main(void)
                 }
             }
             EndMode2D();
-            drawAside(&aside, font, currentScreenWidth);
+            drawAside(&aside, font, currentScreenDimensions.x);
             if (coordinateSelected >= 0)
             {
                 legendDraw(legend, coordinates + coordinateSelected, font);
@@ -201,7 +196,6 @@ int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
             return i;
         }
     }
-
     return -1;
 }
 
@@ -298,11 +292,11 @@ int findAvailableIndex(Coordinate *coordinates, int total)
     return -1;
 }
 
-void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight)
+void updateCameraOffset(Camera2D *camera, Vector2 screenDimensions)
 {
     camera->offset = (Vector2){
-            .x = screenWidth / 2,
-            .y = screenHeight / 2};
+            .x = screenDimensions.x / 2,
+            .y = screenDimensions.y / 2};
 }
 
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
@@ -336,9 +330,4 @@ void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeigh
         (Vector2){-triangleSide/2, yAxisTriangleBase},
         (Vector2){triangleSide/2, yAxisTriangleBase},
         color);
-}
-
-void recenterCamera(Camera2D *camera)
-{
-    camera->target = (Vector2){0};
 }
