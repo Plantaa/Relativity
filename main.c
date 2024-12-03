@@ -8,14 +8,13 @@
 #include "utils.h"
 #include "aside.h"
 #include "legend.h"
+#include "axis.h"
+#include "coordinate_system.h"
 
 void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Camera2D *camera);
-void drawEveryFrame(int screenWidth, int ScreenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera);
-void drawPrimarySystem(int screenWidth, int ScreenHeight, Color color, Camera2D camera);
-void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color);
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total);
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total);
 void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
-void setSecondarySystemAngle(Vector2 position, float *angle);
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition);
 void drawAngleMarker(Vector2 origin, float angleDegrees);
 int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total);
@@ -25,31 +24,40 @@ void clearSelection(Coordinate *coordinates, int total);
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
 void initializeCoordinates(Coordinate *coordinates, int total);
 int findAvailableIndex(Coordinate *coordinates, int total);
-void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight);
+void updateCameraOffset(Camera2D *camera, Vector2 screenDimensions);
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
-void recenterCamera(Camera2D *camera);
 void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
     const int screenWidth = 900;
     const int screenHeight = 600;
+    Vector2 screenDimensions = {.x = screenWidth, .y = screenHeight};
     InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
     Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
     SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
+    Vector2 origin = {0};
+
     Camera2D camera = {
         .offset = {
             .x = screenWidth / 2,
             .y = screenHeight / 2},
-        .target = {.x = 0.0f, .y = 0.0f},
+        .target = origin,
         .rotation = 0.0f,
         .zoom = 1.0f};
 
     bool isMoving = false;
     Vector2 mouseDrag = {0};
+
+    float angle = -(1.0f / 4.0f) * PI;
+
+    CoordinateSystem primarySystem = { .origin = origin, .axiiColor = BLACK };
+    CoordinateSystem secondarySystem = { .origin = origin, .axiiColor = RED };
+    coordinateSystemAngleUpdate(&primarySystem, screenDimensions, 0);
+    coordinateSystemAngleUpdate(&secondarySystem, screenDimensions, angle);
 
     int total = 26;
     Coordinate coordinates[total];
@@ -71,9 +79,7 @@ int main(void)
             .x = screenWidth - (300 + 10),
             .y = screenHeight - (100 + 10),
             .width = 300,
-            .height = 100
-        }
-    };
+            .height = 100}};
 
     ClearButton clearButton = {
         .box = {
@@ -83,22 +89,19 @@ int main(void)
             .height = 30},
         .xTextPadding = 30,
         .yTextPadding = 7,
-        .fontSize = 16};
-
-    float angle = -(1.0f / 4.0f) * PI;
+        .fontSize = 15};
 
     while (!WindowShouldClose())
     {
-        int currentScreenWidth = GetScreenWidth();
-        int currentScreenHeight = GetScreenHeight();
-        Vector2 currentScreenDimensions = { .x = currentScreenWidth, .y = currentScreenHeight };
+        Vector2 currentScreenDimensions = { .x = GetScreenWidth(), .y = GetScreenHeight() };
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
 
-        updateCameraOffset(&camera, currentScreenWidth, currentScreenHeight);
+        coordinateSystemValuesUpdate(&primarySystem, currentScreenDimensions, camera);
+        updateCameraOffset(&camera, currentScreenDimensions);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
-        clearButtonPositionUpdate(&clearButton, currentScreenHeight);
-        asidePositionUpdate(&aside, currentScreenWidth);
+        clearButtonPositionUpdate(&clearButton, currentScreenDimensions.y);
+        asidePositionUpdate(&aside, currentScreenDimensions.x);
         legendPositionUpdate(&legend, currentScreenDimensions);
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
@@ -112,34 +115,32 @@ int main(void)
 
             BeginMode2D(camera);
             {
-                if (IsKeyPressed(KEY_SPACE)) recenterCamera(&camera); 
+                drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
                 clearSelection(coordinates, total);
-                if(coordinateSelected >= 0) {
-                    coordinates[coordinateSelected].selected = true;
-                }
-                drawEveryFrame(currentScreenWidth, currentScreenHeight, angle, coordinates, total, camera);
+
+                if(coordinateSelected >= 0) coordinates[coordinateSelected].selected = true;
 
                 if (IsKeyDown(KEY_R))
-                    setSecondarySystemAngle(mousePositionCompensated, &angle);
+                    coordinateSystemAngleUpdate(&secondarySystem, currentScreenDimensions, calculateAngle(origin, mousePositionCompensated));
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !(isMouseOnClearButton || isMouseOnSavedCoordinate))
-                    drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, angle);
+                    drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle);
 
                 else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                 {
-                    if (isMouseOnClearButton) {
+                    if (isMouseOnClearButton)
+                    {
                         clearCoordinates(coordinates, total);
                         coordinateSelected = -1;
                     }
-
                     else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-
-                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, angle, total);
+                        
+                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total);
                 }
             }
             EndMode2D();
-            drawAside(&aside, font, currentScreenWidth);
+            drawAside(&aside, font, currentScreenDimensions.x);
             if (coordinateSelected >= 0)
             {
                 legendDraw(legend, coordinates + coordinateSelected, font);
@@ -156,27 +157,12 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(int screenWidth, int screenHeight, float angle, Coordinate *coordinates, int total, Camera2D camera)
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total)
 {
-    Vector2 origin = {0};
-    drawAngleMarker(origin, radiansToDegrees(angle));
-    drawPrimarySystem(screenWidth, screenHeight, BLACK, camera);
-    drawCoordinateSystem(angle, screenWidth, screenHeight, RED);
-    drawSavedCoordinates(coordinates, total, angle);
-}
-
-void drawPrimarySystem(int screenWidth, int screenHeight, Color color, Camera2D camera)
-{
-    Vector2 xAxisBegin = { camera.target.x - screenWidth, 0 };
-    Vector2 xAxisEnd = { camera.target.x + screenWidth, 0 };
-
-    Vector2 yAxisBegin = { 0, camera.target.y - screenHeight };
-    Vector2 yAxisEnd = { 0, camera.target.y + screenHeight };
-
-    DrawLineV(xAxisBegin, xAxisEnd, color);
-    DrawLineV(yAxisBegin, yAxisEnd, color);
-
-    drawAxiiOrientationArrows(camera, screenWidth, screenHeight, color);
+    drawAngleMarker(secondarySystem.origin, radiansToDegrees(secondarySystem.angle));
+    coordinateSystemDraw(primarySystem);
+    coordinateSystemDraw(secondarySystem);
+    drawSavedCoordinates(coordinates, total, secondarySystem.angle);
 }
 
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
@@ -187,7 +173,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
-    drawCoordinate(*newCoordinate, angle);
+    coordinateDraw(*newCoordinate, angle);
 }
 
 void drawAside(Aside *aside, Font font, int screenWidth) {
@@ -214,7 +200,6 @@ int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
             return i;
         } 
     }
-
     return -1;
 }
 
@@ -224,8 +209,8 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
     {
         if (!coordinates[i].active) continue;
         coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
-        updateSecondaryLabel(coordinates + i, angle);
-        drawCoordinate(coordinates[i], angle);
+        coordinateSecondaryLabelUpdate(coordinates + i, angle);
+        coordinateDraw(coordinates[i], angle);
     }
 }
 
@@ -237,8 +222,7 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
         *mouseDrag = mousePosition;
     }
 
-    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-        *isMoving = false;
+    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) *isMoving = false;
 
     if (*isMoving)
     {
@@ -249,11 +233,8 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
 
         *mouseDrag = mousePosition;
     }
-}
 
-void setSecondarySystemAngle(Vector2 position, float *angle)
-{
-    *angle = calculateAngle((Vector2){.x = 0.0f, .y = 0.0f}, position);
+    if (IsKeyPressed(KEY_SPACE)) camera->target = (Vector2){0};
 }
 
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
@@ -265,32 +246,6 @@ Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
     return (Vector2){
         .x = mousePosition.x + cameraCompensation.x,
         .y = mousePosition.y + cameraCompensation.y};
-}
-
-void drawCoordinateSystem(float angle, int screenWidth, int screenHeight, Color color)
-{
-    float angleSin = sin(angle);
-    float angleCos = cos(angle);
-    float axisLength = screenWidth * screenHeight;
-
-    Vector2 xAxisBegin = {
-        angleCos * axisLength,
-        angleSin * axisLength};
-
-    Vector2 xAxisEnd = {
-        -angleCos * axisLength,
-        -angleSin * axisLength};
-
-    Vector2 yAxisBegin = {
-        angleSin * axisLength,
-        -angleCos * axisLength};
-
-    Vector2 yAxisEnd = {
-        -angleSin * axisLength,
-        angleCos * axisLength};
-
-    DrawLineV(xAxisBegin, xAxisEnd, color);
-    DrawLineV(yAxisBegin, yAxisEnd, color);
 }
 
 void drawAngleMarker(Vector2 origin, float angleDegrees)
@@ -322,7 +277,7 @@ void clearSelection(Coordinate *coordinates, int total)
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
 {
     coordinateFill(coordinate, '?', position, angle, 6, BLUE);
-    drawCoordinate(*coordinate, angle);
+    coordinateDraw(*coordinate, angle);
 }
 
 void initializeCoordinates(Coordinate *coordinates, int total)
@@ -341,11 +296,11 @@ int findAvailableIndex(Coordinate *coordinates, int total)
     return -1;
 }
 
-void updateCameraOffset(Camera2D *camera, int screenWidth, int screenHeight)
+void updateCameraOffset(Camera2D *camera, Vector2 screenDimensions)
 {
     camera->offset = (Vector2){
-            .x = screenWidth / 2,
-            .y = screenHeight / 2};
+            .x = screenDimensions.x / 2,
+            .y = screenDimensions.y / 2};
 }
 
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
@@ -379,9 +334,4 @@ void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeigh
         (Vector2){-triangleSide/2, yAxisTriangleBase},
         (Vector2){triangleSide/2, yAxisTriangleBase},
         color);
-}
-
-void recenterCamera(Camera2D *camera)
-{
-    camera->target = (Vector2){0};
 }
