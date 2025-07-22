@@ -30,18 +30,11 @@ void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
-    Vector2 screenDimensions = {.x = 900, .y = 600};
+    Vector2 screenDimensions = {.x = 1024, .y = 768};
 
     InitWindow(screenDimensions.x, screenDimensions.y, "Parábola dos Geômetras no Reino de Emma");
 
     SetTargetFPS(60);
-
-    Image background = LoadImage("assets/Oreum.png");
-    Texture2D backgroundTexture = LoadTextureFromImage(background);
-    UnloadImage(background);
-
-    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
-    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
     Vector2 origin = {0};
 
@@ -52,6 +45,15 @@ int main(void)
         .target = origin,
         .rotation = 0.0f,
         .zoom = 1.0f};
+        
+    Image background = LoadImage("assets/Oreum.png");
+    printf("Image width: %d\tImage height: %d\n", background.width, background.height);
+    ImageResize(&background, screenDimensions.x, screenDimensions.y);
+    Texture2D backgroundTexture = LoadTextureFromImage(background);
+    UnloadImage(background);
+
+    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
     bool isMoving = false;
     Vector2 mouseDrag = {0};
@@ -95,6 +97,7 @@ int main(void)
         .yTextPadding = 7,
         .fontSize = 15};
 
+    bool fixed = false;
     while (!WindowShouldClose())
     {
         Vector2 currentScreenDimensions = { .x = GetScreenWidth(), .y = GetScreenHeight() };
@@ -111,11 +114,13 @@ int main(void)
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
 
+        if (IsKeyPressed(KEY_P)) fixed = !fixed;
+
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
-            DrawTextureV(backgroundTexture,origin, WHITE);
+            DrawTextureV(backgroundTexture, origin, WHITE);
 
             clearButtonDraw(clearButton, font);
 
@@ -156,6 +161,7 @@ int main(void)
                 }
             }
         }
+        if (IsKeyPressed(KEY_S)) TakeScreenshot("screenshot.png");
         EndDrawing();
     }
     UnloadTexture(backgroundTexture);
@@ -196,9 +202,9 @@ int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].selected == false)
+        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
         {
-            if(coordinates[i].selected == true) {
+            if(coordinates[i].selected) {
                 coordinates[i].selected = false;
                 return -1;
             }
@@ -258,9 +264,9 @@ Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
 void drawAngleMarker(Vector2 origin, float angleDegrees)
 {
     char markerText[10];
-    snprintf(markerText, 10, "%f", -angleDegrees);
-    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
-    DrawText(markerText, 60, 20, 10, GRAY);
+    snprintf(markerText, 10, "%.2f", -angleDegrees);
+    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, DARKGRAY);
+    DrawText(markerText, 60, 20, 10, DARKGRAY);
 }
 
 void clearCoordinates(Coordinate *coordinates, int total)
