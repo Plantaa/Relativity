@@ -1,5 +1,7 @@
 #!/bin/bash
+
 mkdir -p build 2> /dev/null
+
 gcc -c src/aside.c -o build/aside.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 gcc -c src/clear_button.c -o build/clear_button.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1
 gcc -c src/coordinate.c -o build/coordinate.o -g3 -std=c99 -Wall -Wextra -Wpedantic -O1

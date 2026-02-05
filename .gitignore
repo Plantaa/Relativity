@@ -3,6 +3,7 @@ build
 relativity
 **/*.o
 **/.exe
+screenshot.png
 
 # Project
 .vscode

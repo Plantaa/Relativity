@@ -77,7 +77,9 @@ int main(void)
             .x = screenDimensions.x - 500,
             .y = 0,
             .height = screenDimensions.y / 2,
-            .width = 500}};
+            .width = 500
+        }
+    };
 
     Legend legend = {
         .active = false,
@@ -85,21 +87,23 @@ int main(void)
             .x = screenDimensions.x - (300 + 10),
             .y = screenDimensions.y - (100 + 10),
             .width = 300,
-            .height = 100}};
+            .height = 100
+        }
+    };
 
     ClearButton clearButton = {
         .box = {
             .x = 10,
             .y = screenDimensions.y - 40,
             .width = 100,
-            .height = 30},
+            .height = 30
+        },
         .xTextPadding = 30,
         .yTextPadding = 7,
-        .fontSize = 15};
+        .fontSize = 15
+    };
 
-    bool fixed = false;
-    while (!WindowShouldClose())
-    {
+    while (!WindowShouldClose()) {
         Vector2 currentScreenDimensions = { .x = GetScreenWidth(), .y = GetScreenHeight() };
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
@@ -113,8 +117,6 @@ int main(void)
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
-
-        if (IsKeyPressed(KEY_P)) fixed = !fixed;
 
         BeginDrawing();
         {
