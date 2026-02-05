@@ -17,6 +17,11 @@ file(GLOB SRCS "${CMAKE_SOURCE_DIR}/src/*.c")
 
 add_executable(relativity ${SRCS})
 
+target_include_directories(relativity
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+)
+
 target_compile_features(relativity PRIVATE c_std_99)
 
 target_link_libraries(relativity PRIVATE raylib)
