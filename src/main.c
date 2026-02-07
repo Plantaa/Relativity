@@ -30,7 +30,12 @@ void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
-    Vector2 screenDimensions = {.x = 1024, .y = 768};
+    const int screenWidth = 900;
+    const int screenHeight = 600;
+    Vector2 screenDimensions = {.x = screenWidth, .y = screenHeight};
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
+    SetTargetFPS(60);
 
     InitWindow(screenDimensions.x, screenDimensions.y, "Parábola dos Geômetras no Reino de Emma");
 
