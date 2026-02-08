@@ -34,7 +34,6 @@ int main(void)
     const int screenHeight = 600;
     Vector2 screenDimensions = {.x = screenWidth, .y = screenHeight};
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
     InitWindow(screenDimensions.x, screenDimensions.y, "Parábola dos Geômetras no Reino de Emma");
