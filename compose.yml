@@ -1,0 +1,13 @@
+services:
+  relativity:
+    image: docker.io/planterson/relativity
+    container_name: reinoDeEmma
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - type: bind
+        source: /tmp/.X11-unix
+        target: /tmp/.X11-unix

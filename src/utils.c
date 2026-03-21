@@ -7,16 +7,25 @@ float calculateAngle(Vector2 start, Vector2 end)
     return atan2f(deltaY, deltaX);
 }
 
+float degreesToRadians(float degrees)
+{
+    return degrees / (180.f / PI);
+}
+
 float radiansToDegrees(float radians)
 {
     return radians * (180.f / PI);
 }
 
-// Function to convert coordinates from System B to System A
-Vector2 convertToSystemA(Vector2 point, float angle)
+Vector2 convertToSystemADegrees(Vector2 point, float degrees)
 {
-    float angleCos = cosf(angle);
-    float angleSin = sinf(angle);
+    return convertToSystemA(point, degreesToRadians(degrees));
+}
+
+Vector2 convertToSystemA(Vector2 point, float radians)
+{
+    float angleCos = cosf(radians);
+    float angleSin = sinf(radians);
 
     Vector2 pointA = {
         .x = point.x * angleCos - point.y * angleSin,
@@ -25,7 +34,6 @@ Vector2 convertToSystemA(Vector2 point, float angle)
     return pointA;
 }
 
-// Function to convert coordinates from System A to System B
 Vector2 convertToSystemB(Vector2 point, float angle)
 {
     float angleCos = cosf(angle);
@@ -46,7 +54,7 @@ void drawDottedLine(Vector2 start, Vector2 end, Color color)
     double dotX = start.x;
     double dotY = start.y;
 
-    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L))/4;
+    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L))/2;
 
     double deltaDotX = deltaX / dotNumber;
     double deltaDotY = deltaY / dotNumber;

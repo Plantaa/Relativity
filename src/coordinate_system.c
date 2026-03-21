@@ -19,8 +19,8 @@ void coordinateSystemFill(CoordinateSystem *coordinateSystem, Vector2 origin, Ax
 
 void coordinateSystemDraw(CoordinateSystem coordinateSystem)
 {
-    DrawLineV(coordinateSystem.xAxis.begin, coordinateSystem.xAxis.end, coordinateSystem.axiiColor);
-    DrawLineV(coordinateSystem.yAxis.begin, coordinateSystem.yAxis.end, coordinateSystem.axiiColor);
+    DrawLineEx(coordinateSystem.xAxis.begin, coordinateSystem.xAxis.end, 1.4f, coordinateSystem.axiiColor);
+    DrawLineEx(coordinateSystem.yAxis.begin, coordinateSystem.yAxis.end, 1.4f, coordinateSystem.axiiColor);
 }
 
 void coordinateSystemValuesUpdate(CoordinateSystem *coordinateSystem, Vector2 screenDimensions, Camera2D camera)

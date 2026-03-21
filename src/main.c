@@ -30,38 +30,47 @@ void drawAside(Aside *aside, Font font, int screenWidth);
 
 int main(void)
 {
-    const int screenWidth = 900;
-    const int screenHeight = 600;
+    const float screenWidth = 1200;
+    const float screenHeight = 800;
     Vector2 screenDimensions = {.x = screenWidth, .y = screenHeight};
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(screenWidth, screenHeight, "Parábola dos Geômetras no Reino de Emma");
     SetTargetFPS(60);
 
-    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
-    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
+    InitWindow(screenDimensions.x, screenDimensions.y, "Parábola dos Geômetras no Reino de Emma");
 
-    Vector2 origin = {0};
+    SetTargetFPS(60);
+
+    Vector2 origin = {screenWidth * 0.092, (screenHeight / -20)};
 
     Camera2D camera = {
         .offset = {
-            .x = screenWidth / 2,
-            .y = screenHeight / 2},
+            .x = screenDimensions.x / 2,
+            .y = screenDimensions.y / 2},
         .target = origin,
         .rotation = 0.0f,
         .zoom = 1.0f};
+
+    Image background = LoadImage("assets/Oreum.png");
+    ImageResize(&background, screenDimensions.x, screenDimensions.y);
+    Texture2D backgroundTexture = LoadTextureFromImage(background);
+    UnloadImage(background);
+
+    Font font = LoadFontEx("./assets/fonts/Poppins-Regular.ttf", 32, NULL, 250);
+    SetTextureFilter(font.texture, TEXTURE_FILTER_BILINEAR);
 
     bool isMoving = false;
     Vector2 mouseDrag = {0};
 
     float angle = -(1.0f / 4.0f) * PI;
 
-    CoordinateSystem primarySystem = { .origin = origin, .axiiColor = BLACK };
-    CoordinateSystem secondarySystem = { .origin = origin, .axiiColor = RED };
+    CoordinateSystem primarySystem = {.origin = origin, .axiiColor = BLACK};
+    CoordinateSystem secondarySystem = {.origin = origin, .axiiColor = RED};
     coordinateSystemAngleUpdate(&primarySystem, screenDimensions, 0);
     coordinateSystemAngleUpdate(&secondarySystem, screenDimensions, angle);
 
     int total = 26;
-    Coordinate coordinates[total];
+    Coordinate coordinates[26];
     initializeCoordinates(coordinates, total);
     int coordinateSelected = -1;
     Coordinate placeholderCoordinate;
@@ -69,32 +78,33 @@ int main(void)
     Aside aside = {
         .active = false,
         .box = {
-            .x = screenWidth - 500,
+            .x = screenDimensions.x - 500,
             .y = 0,
-            .height = screenHeight / 2,
+            .height = screenDimensions.y / 2,
             .width = 500}};
 
     Legend legend = {
         .active = false,
         .box = {
-            .x = screenWidth - (300 + 10),
-            .y = screenHeight - (100 + 10),
+            .x = screenDimensions.x - (300 + 10),
+            .y = screenDimensions.y - (100 + 10),
             .width = 300,
             .height = 100}};
 
     ClearButton clearButton = {
         .box = {
             .x = 10,
-            .y = screenHeight - 40,
+            .y = screenDimensions.y - 40,
             .width = 100,
             .height = 30},
         .xTextPadding = 30,
         .yTextPadding = 7,
         .fontSize = 15};
 
+    Vector2 currentScreenDimensions = {.x = GetScreenWidth(), .y = GetScreenHeight()};
+
     while (!WindowShouldClose())
     {
-        Vector2 currentScreenDimensions = { .x = GetScreenWidth(), .y = GetScreenHeight() };
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = compensateMousePositionForCamera(camera, mousePosition);
 
@@ -112,14 +122,14 @@ int main(void)
         {
             ClearBackground(RAYWHITE);
 
-            clearButtonDraw(clearButton, font);
-
             BeginMode2D(camera);
             {
+                DrawTextureV(backgroundTexture, (Vector2){origin.x - screenDimensions.x / 2, origin.y - screenDimensions.y / 2}, WHITE);
                 drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
                 clearSelection(coordinates, total);
 
-                if(coordinateSelected >= 0) coordinates[coordinateSelected].selected = true;
+                if (coordinateSelected >= 0)
+                    coordinates[coordinateSelected].selected = true;
 
                 if (IsKeyDown(KEY_R))
                     coordinateSystemAngleUpdate(&secondarySystem, currentScreenDimensions, calculateAngle(origin, mousePositionCompensated));
@@ -136,23 +146,31 @@ int main(void)
                     }
                     else if (isMouseOnSavedCoordinate)
                         coordinateSelected = selectCoordinate(mousePositionCompensated, coordinates, total);
-                        
-                    else drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total);
+
+                    else
+                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total);
                 }
             }
             EndMode2D();
+
+            clearButtonDraw(clearButton, font);
             drawAside(&aside, font, currentScreenDimensions.x);
+
             if (coordinateSelected >= 0)
             {
                 legendDraw(legend, coordinates + coordinateSelected, font);
-                if (IsKeyPressed(KEY_DELETE)) {
+                if (IsKeyPressed(KEY_DELETE))
+                {
                     coordinates[coordinateSelected].active = false;
                     coordinateSelected = -1;
                 }
             }
         }
+        if (IsKeyPressed(KEY_S))
+            TakeScreenshot("screenshot.png");
         EndDrawing();
     }
+    UnloadTexture(backgroundTexture);
     UnloadFont(font);
     CloseWindow();
     return 0;
@@ -160,7 +178,7 @@ int main(void)
 
 void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total)
 {
-    drawAngleMarker(secondarySystem.origin, radiansToDegrees(secondarySystem.angle));
+    drawAngleMarker((Vector2){0}, radiansToDegrees(secondarySystem.angle));
     coordinateSystemDraw(primarySystem);
     coordinateSystemDraw(secondarySystem);
     drawSavedCoordinates(coordinates, total, secondarySystem.angle);
@@ -169,7 +187,8 @@ void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySy
 void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
 {
     int index = findAvailableIndex(coordinates, total);
-    if (index < 0) return;
+    if (index < 0)
+        return;
 
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
@@ -177,12 +196,17 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     coordinateDraw(*newCoordinate, angle);
 }
 
-void drawAside(Aside *aside, Font font, int screenWidth) {
-    if (IsKeyPressed(KEY_F1)) aside->active = !aside->active;
-    if (aside->active) {
+void drawAside(Aside *aside, Font font, int screenWidth)
+{
+    if (IsKeyPressed(KEY_F1))
+        aside->active = !aside->active;
+    if (aside->active)
+    {
         asideDraw(*aside, font);
-    } else {
-        DrawTextEx(font, "[F1] - Abrir Menu", (Vector2) { .x = screenWidth - 130, .y = 0 }, 16, 1, BLACK);
+    }
+    else
+    {
+        DrawTextEx(font, "[F1] - Abrir Menu", (Vector2){.x = screenWidth - 130, .y = 0}, 16, 1, BLACK);
     };
 }
 
@@ -190,16 +214,17 @@ int selectCoordinate(Vector2 mousePosition, Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
     {
-        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius) && coordinates[i].selected == false)
+        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
         {
-            if(coordinates[i].selected == true) {
+            if (coordinates[i].selected)
+            {
                 coordinates[i].selected = false;
                 return -1;
             }
 
             coordinates[i].selected = true;
             return i;
-        } 
+        }
     }
     return -1;
 }
@@ -208,7 +233,8 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
 {
     for (int i = 0; i < total; i++)
     {
-        if (!coordinates[i].active) continue;
+        if (!coordinates[i].active)
+            continue;
         coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
         coordinateSecondaryLabelUpdate(coordinates + i, angle);
         coordinateDraw(coordinates[i], angle);
@@ -223,7 +249,8 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
         *mouseDrag = mousePosition;
     }
 
-    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) *isMoving = false;
+    if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        *isMoving = false;
 
     if (*isMoving)
     {
@@ -235,7 +262,8 @@ void controlCamera(bool *isMoving, Vector2 *mouseDrag, Vector2 mousePosition, Ca
         *mouseDrag = mousePosition;
     }
 
-    if (IsKeyPressed(KEY_SPACE)) camera->target = (Vector2){0};
+    if (IsKeyPressed(KEY_SPACE))
+        camera->target = (Vector2){GetScreenWidth() * 0.092, (GetScreenHeight() / -20)};
 }
 
 Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
@@ -252,14 +280,15 @@ Vector2 compensateMousePositionForCamera(Camera2D camera, Vector2 mousePosition)
 void drawAngleMarker(Vector2 origin, float angleDegrees)
 {
     char markerText[10];
-    snprintf(markerText, 10, "%f", -angleDegrees);
-    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, GRAY);
-    DrawText(markerText, 60, 20, 10, GRAY);
+    snprintf(markerText, 10, "%.2f", -angleDegrees);
+    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, DARKGRAY);
+    DrawText(markerText, 60, 20, 10, DARKGRAY);
 }
 
 void clearCoordinates(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++) coordinates[i].active = false;
+    for (int i = 0; i < total; i++)
+        coordinates[i].active = false;
 }
 
 bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePosition, int total)
@@ -272,7 +301,8 @@ bool savedCoordinatesCheckCollision(Coordinate *coordinates, Vector2 mousePositi
 
 void clearSelection(Coordinate *coordinates, int total)
 {
-    for (int i = 0; i < total; i++) coordinates[i].selected = false;
+    for (int i = 0; i < total; i++)
+        coordinates[i].selected = false;
 }
 
 void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
@@ -293,46 +323,47 @@ void initializeCoordinates(Coordinate *coordinates, int total)
 int findAvailableIndex(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
-        if (!coordinates[i].active) return i;
+        if (!coordinates[i].active)
+            return i;
     return -1;
 }
 
 void updateCameraOffset(Camera2D *camera, Vector2 screenDimensions)
 {
     camera->offset = (Vector2){
-            .x = screenDimensions.x / 2,
-            .y = screenDimensions.y / 2};
+        .x = screenDimensions.x / 2,
+        .y = screenDimensions.y / 2};
 }
 
 void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color)
 {
     double triangleSide = 12;
-    double widthOffset = screenWidth/2;
-    double heightOffset = -screenHeight/2;
+    double widthOffset = screenWidth / 2;
+    double heightOffset = -screenHeight / 2;
 
     double xAxisTriangleTip = camera.target.x + widthOffset;
     double xAxisTriangleBase = xAxisTriangleTip - triangleSide;
     DrawTriangle(
         (Vector2){xAxisTriangleTip, 0},
-        (Vector2){xAxisTriangleBase, -triangleSide/2},
-        (Vector2){xAxisTriangleBase, triangleSide/2},
+        (Vector2){xAxisTriangleBase, -triangleSide / 2},
+        (Vector2){xAxisTriangleBase, triangleSide / 2},
         DARKGRAY);
     DrawTriangleLines(
         (Vector2){xAxisTriangleTip, 0},
-        (Vector2){xAxisTriangleBase, -triangleSide/2},
-        (Vector2){xAxisTriangleBase, triangleSide/2},
+        (Vector2){xAxisTriangleBase, -triangleSide / 2},
+        (Vector2){xAxisTriangleBase, triangleSide / 2},
         color);
-    
+
     double yAxisTriangleTip = camera.target.y + heightOffset;
     double yAxisTriangleBase = yAxisTriangleTip + triangleSide;
     DrawTriangle(
         (Vector2){0, yAxisTriangleTip},
-        (Vector2){-triangleSide/2, yAxisTriangleBase},
-        (Vector2){triangleSide/2, yAxisTriangleBase},
+        (Vector2){-triangleSide / 2, yAxisTriangleBase},
+        (Vector2){triangleSide / 2, yAxisTriangleBase},
         DARKGRAY);
     DrawTriangleLines(
         (Vector2){0, yAxisTriangleTip},
-        (Vector2){-triangleSide/2, yAxisTriangleBase},
-        (Vector2){triangleSide/2, yAxisTriangleBase},
+        (Vector2){-triangleSide / 2, yAxisTriangleBase},
+        (Vector2){triangleSide / 2, yAxisTriangleBase},
         color);
 }
