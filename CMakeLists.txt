@@ -22,6 +22,12 @@ target_include_directories(relativity
         ${CMAKE_SOURCE_DIR}/include
 )
 
+add_custom_command(TARGET relativity POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:relativity>/assets
+)
+
 target_compile_features(relativity PRIVATE c_std_99)
 
 target_link_libraries(relativity PRIVATE raylib)
