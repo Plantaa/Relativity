@@ -132,7 +132,7 @@ int main(void)
                     coordinates[coordinateSelected].selected = true;
 
                 if (IsKeyDown(KEY_R))
-                    coordinateSystemAngleUpdate(&secondarySystem, currentScreenDimensions, calculateAngle(origin, mousePositionCompensated));
+                    coordinateSystemAngleUpdate(&secondarySystem, currentScreenDimensions, calculateAngle((Vector2){0}, mousePositionCompensated));
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && !(isMouseOnClearButton || isMouseOnSavedCoordinate))
                     drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle);
