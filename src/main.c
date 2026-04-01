@@ -111,9 +111,9 @@ int main(void)
         coordinateSystemValuesUpdate(&primarySystem, currentScreenDimensions, camera);
         updateCameraOffset(&camera, currentScreenDimensions);
         controlCamera(&isMoving, &mouseDrag, mousePosition, &camera);
-        clearButtonPositionUpdate(&clearButton, currentScreenDimensions.y);
-        asidePositionUpdate(&aside, currentScreenDimensions.x);
-        legendPositionUpdate(&legend, currentScreenDimensions);
+        clearButtonPositionUpdate(&clearButton, GetScreenHeight());
+        asidePositionUpdate(&aside, GetScreenWidth());
+        legendPositionUpdate(&legend, (Vector2){GetScreenWidth(), GetScreenHeight()});
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         bool isMouseOnSavedCoordinate = savedCoordinatesCheckCollision(coordinates, mousePositionCompensated, total);
@@ -154,7 +154,7 @@ int main(void)
             EndMode2D();
 
             clearButtonDraw(clearButton, font);
-            drawAside(&aside, font, currentScreenDimensions.x);
+            drawAside(&aside, font, GetScreenWidth());
 
             if (coordinateSelected >= 0)
             {
