@@ -1,4 +1,4 @@
-# Parábola dos Geomâras no Reino de Emma
+# Parábola dos Geômetras no Reino de Emma
 
 ## Descrição
 
