@@ -11,6 +11,6 @@ typedef struct legend
 } Legend;
 
 void legendDraw(Legend legend, const Coordinate* const coordinate, Font font);
-void legendPositionUpdate(Legend *legend, Vector2 screenDimension);
+void legendPositionUpdate(Legend *legend);
 
 #endif

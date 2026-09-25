@@ -14,7 +14,7 @@ typedef struct coordinate_system
 }CoordinateSystem;
 
 void coordinateSystemDraw(CoordinateSystem coordinateSystem);
-void coordinateSystemValuesUpdate(CoordinateSystem *coordinateSystem, Vector2 screenDimensions, Camera2D camera);
-void coordinateSystemAngleUpdate(CoordinateSystem *coordinateSystem, Vector2 screenDimensions, double angle);
+void coordinateSystemValuesUpdate(CoordinateSystem *coordinateSystem, Camera2D camera);
+void coordinateSystemAngleUpdate(CoordinateSystem *coordinateSystem, double angle);
 
 #endif

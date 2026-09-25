@@ -60,8 +60,8 @@ void legendDraw(Legend legend, const Coordinate* const coordinate, Font font)
         BLACK);
 }
 
-void legendPositionUpdate(Legend *legend, Vector2 screenDimension) 
+void legendPositionUpdate(Legend *legend) 
 {
-    legend->box.x = screenDimension.x - legend->box.width;
-    legend->box.y = screenDimension.y - legend->box.height;
+    legend->box.x = GetScreenWidth() - legend->box.width;
+    legend->box.y = GetScreenHeight() - legend->box.height;
 }
