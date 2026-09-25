@@ -15,4 +15,4 @@ COPY src src
 RUN cmake -S . -B build
 RUN cmake --build build
 
-CMD [ "/app/build/relativity" ]
+CMD [ "/app/build/ReinoDeEmma" ]
