@@ -148,10 +148,11 @@ int main(void)
                         camera.target.y -= mouseDrag.y;
                     }
 
-                    if (IsKeyPressed(KEY_SPACE))
-                    {
-                        camera.target = (Vector2){GetScreenWidth() * 0.092, (GetScreenHeight() / -20)};
-                    }
+                }
+                
+                if (IsKeyPressed(KEY_SPACE))
+                {
+                    camera.target = (Vector2){GetScreenWidth() * 0.092, (GetScreenHeight() / -20)};
                 }
 
                 else if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
