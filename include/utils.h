@@ -9,7 +9,6 @@ float radiansToDegrees(float radians);
 Vector2 convertToSystemA(Vector2 point, float angle);
 Vector2 convertToSystemB(Vector2 point, float angle);
 void drawDottedLine(Vector2 start, Vector2 end, Color color);
-double feetToMeters(double feet);
 double metersToFeet(double meters);
 
 #endif

@@ -2,19 +2,6 @@
 
 #include "clear_button.h"
 
-ClearButton *clearButtonCreate()
-{
-    return (ClearButton*)malloc(sizeof(ClearButton));
-}
-
-void clearButtonFill(ClearButton *button, Rectangle box, int xTextPadding, int yTextPadding, int fontSize)
-{
-    button->box = box;
-    button->xTextPadding = xTextPadding;
-    button->yTextPadding = yTextPadding;
-    button->fontSize = fontSize;
-}
-
 void clearButtonDraw(ClearButton button, Font font)
 {
     Vector2 textPosition = { .x = button.box.x + button.xTextPadding, .y = button.box.y + button.yTextPadding };

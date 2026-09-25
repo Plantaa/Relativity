@@ -2,11 +2,6 @@
 
 #include "aside.h"
 
-Aside *asideCreate()
-{
-    return (Aside *)malloc(sizeof(Aside));
-}
-
 void asideFill(Aside aside, Font font) 
 {
     int gap = 24;

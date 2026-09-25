@@ -5,11 +5,6 @@
 #include "coordinate.h"
 #include "utils.h"
 
-Legend *legend()
-{
-    return (Legend *)malloc(sizeof(Legend));
-}
-
 void legendDraw(Legend legend, const Coordinate* const coordinate, Font font) 
 {
     int fontSize = 16;

@@ -3,20 +3,6 @@
 
 #include "coordinate_system.h"
 
-CoordinateSystem *coordinateSystemCreate()
-{
-    return calloc(1, sizeof(CoordinateSystem));
-}
-
-void coordinateSystemFill(CoordinateSystem *coordinateSystem, Vector2 origin, Axis xAxis, Axis yAxis, double angle, Color axiiColor)
-{
-    coordinateSystem->origin = origin;
-    coordinateSystem->xAxis = xAxis;
-    coordinateSystem->yAxis = yAxis;
-    coordinateSystem->angle = angle;
-    coordinateSystem->axiiColor = axiiColor;
-}
-
 void coordinateSystemDraw(CoordinateSystem coordinateSystem)
 {
     DrawLineEx(coordinateSystem.xAxis.begin, coordinateSystem.xAxis.end, 1.4f, coordinateSystem.axiiColor);
