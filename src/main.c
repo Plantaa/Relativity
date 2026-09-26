@@ -105,13 +105,14 @@ int main(void)
         .yTextPadding = 7,
         .fontSize = 15};
 
-    bool isDragging = false;
+    bool isCoordinateDragging = false;
     bool labels = false;
 
     while (!WindowShouldClose())
     {
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = GetScreenToWorld2D(mousePosition, camera);
+        Vector2 mouseDelta = GetMouseDelta();
 
         coordinateSystemValuesUpdate(&primarySystem, camera);
         updateCameraOffset(&camera);
@@ -121,6 +122,9 @@ int main(void)
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         int savedCoordinateMouseHover = getSavedCoordinateMouseHover(coordinates, total, mousePositionCompensated);
+        bool isMouseOnCanvas = savedCoordinateMouseHover < 0 && !isMouseOnClearButton;
+        bool isMouseOnSelectedCoordinate = coordinateSelected >= 0 && coordinateSelected == savedCoordinateMouseHover;
+        bool isMouseDragging = mouseDelta.x || mouseDelta.y;
 
         if (IsKeyPressed(KEY_L))
         {
@@ -157,15 +161,15 @@ int main(void)
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
-                    if (isDragging)
+                    if (isCoordinateDragging)
                     {
                         dragCoordinate(coordinates + coordinateSelected);
                     }
-                    else if ((savedCoordinateMouseHover >= 0) && (coordinateSelected == savedCoordinateMouseHover))
+                    else if (isMouseOnSelectedCoordinate && isMouseDragging)
                     {
-                        isDragging = true;
+                        isCoordinateDragging = true;
                     }
-                    else if (savedCoordinateMouseHover < 0 && !isMouseOnClearButton)
+                    else if (isMouseOnCanvas)
                     {
                         drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle, labels);
                     }
@@ -173,18 +177,13 @@ int main(void)
 
                 if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
                 {
-                    isDragging = false;
-                    if (isMouseOnClearButton)
+                    isCoordinateDragging = false;
+                    if (savedCoordinateMouseHover >= 0)
                     {
-                        clearCoordinates(coordinates, total);
-                        coordinateSelected = -1;
-                    }
-                    else if (savedCoordinateMouseHover >= 0)
-                    {
-                        if (coordinateSelected == savedCoordinateMouseHover)
-                        {
-                            coordinates[coordinateSelected].selected = !coordinates[coordinateSelected].selected;
-                            coordinateSelected = coordinates[coordinateSelected].selected ? coordinateSelected : -1;
+                        if (isMouseOnSelectedCoordinate)
+                        {   
+                            coordinates[coordinateSelected].selected = false;
+                            coordinateSelected = -1;
                         }
                         else
                         {
@@ -193,8 +192,12 @@ int main(void)
                             coordinates[coordinateSelected].selected = true;
                         }
                     }
-                    else
+                    else if (isMouseOnClearButton)
                     {
+                        clearCoordinates(coordinates, total);
+                        coordinateSelected = -1;
+                    }
+                    else {
                         drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total, labels);
                     }
                 }
@@ -215,7 +218,9 @@ int main(void)
             }
         }
         if (IsKeyPressed(KEY_S))
+        {
             TakeScreenshot("screenshot.png");
+        }
         EndDrawing();
     }
     UnloadTexture(backgroundTexture);
