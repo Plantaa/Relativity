@@ -2,11 +2,6 @@
 
 #include "aside.h"
 
-Aside *asideCreate()
-{
-    return (Aside *)malloc(sizeof(Aside));
-}
-
 void asideFill(Aside aside, Font font) 
 {
     int gap = 24;
@@ -45,7 +40,11 @@ void asideFill(Aside aside, Font font)
 
     DrawTextEx(font, "[Espaço]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
     DrawTextEx(font, "Recentraliza a câmera", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
-    
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
+
+    DrawTextEx(font, "[S]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
+    DrawTextEx(font, "Salva uma captura de tela", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
 }
 
 

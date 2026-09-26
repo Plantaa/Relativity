@@ -17,11 +17,6 @@ float radiansToDegrees(float radians)
     return radians * (180.f / PI);
 }
 
-Vector2 convertToSystemADegrees(Vector2 point, float degrees)
-{
-    return convertToSystemA(point, degreesToRadians(degrees));
-}
-
 Vector2 convertToSystemA(Vector2 point, float radians)
 {
     float angleCos = cosf(radians);
@@ -70,9 +65,4 @@ void drawDottedLine(Vector2 start, Vector2 end, Color color)
 double metersToFeet(double meters)
 {
     return meters / 0.3048;
-}
-
-double feetToMeters(double feet)
-{
-    return feet * 0.3048;
 }

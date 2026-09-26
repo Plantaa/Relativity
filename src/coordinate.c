@@ -4,11 +4,6 @@
 #include "coordinate.h"
 #include "utils.h"
 
-Coordinate *coordinateCreate()
-{
-    return (Coordinate *)malloc(sizeof(Coordinate));
-}
-
 void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, float angle, int radius, Color color)
 {
     coordinate->primaryPosition = position;
