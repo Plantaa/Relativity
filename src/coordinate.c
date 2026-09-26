@@ -70,8 +70,9 @@ void coordinatePrint(Coordinate *coord)
     printf("\n");
 }
 
-void coordinateSecondaryLabelUpdate(Coordinate *coordinate, float angle)
+void coordinateLabelUpdate(Coordinate * const coordinate, float angle)
 {
+    snprintf(coordinate->primaryLabel, 50, "(%.2fm, %.2fft)", coordinate->primaryPosition.x, -metersToFeet(coordinate->primaryPosition.y));
     coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
     snprintf(coordinate->secondaryLabel, 50, "(%.2fm, %.2fft)", coordinate->secondaryPosition.x, -metersToFeet(coordinate->secondaryPosition.y));
 }

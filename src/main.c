@@ -269,7 +269,7 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool 
             continue;
         }
         coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
-        coordinateSecondaryLabelUpdate(coordinates + i, angle);
+        coordinateLabelUpdate(coordinates + i, angle);
         coordinateDraw(coordinates[i], angle, labels);
     }
 }
