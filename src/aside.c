@@ -2,7 +2,7 @@
 
 #include "aside.h"
 
-void asideFill(Aside aside, Font font) 
+void asideFill(Aside aside, Font font)
 {
     int gap = 24;
     int textHeight = aside.box.y + gap;
@@ -10,8 +10,14 @@ void asideFill(Aside aside, Font font)
     int titleFontSize = 22;
     int descriptionFontSize = 16;
     int fontSpacing = 1;
-    Vector2 titleTextPosition = { .x = justifyLeft, .y = textHeight };
-    Vector2 descriptionTextPostition = { .x = justifyLeft, .y = textHeight + gap };
+
+    Vector2 titleTextPosition = {
+        .x = justifyLeft,
+        .y = textHeight};
+    
+    Vector2 descriptionTextPostition = {
+        .x = justifyLeft,
+        .y = textHeight + gap};
 
     DrawTextEx(font, "[F1]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
     DrawTextEx(font, "Abrir/Fechar este menu de ajuda", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
@@ -28,13 +34,13 @@ void asideFill(Aside aside, Font font)
     titleTextPosition.y += 46;
     descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[R]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
-    DrawTextEx(font, "Define o ângulo do segundo eixo", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
+    DrawTextEx(font, "[Del]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
+    DrawTextEx(font, "Remove uma coordenada selecionada", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
     titleTextPosition.y += 46;
     descriptionTextPostition.y += 46;
 
-    DrawTextEx(font, "[Del]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
-    DrawTextEx(font, "Remove uma coordenada selecionada", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
+    DrawTextEx(font, "[R]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
+    DrawTextEx(font, "Define o ângulo do segundo eixo", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
     titleTextPosition.y += 46;
     descriptionTextPostition.y += 46;
 
@@ -45,8 +51,12 @@ void asideFill(Aside aside, Font font)
 
     DrawTextEx(font, "[S]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
     DrawTextEx(font, "Salva uma captura de tela", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
-}
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
 
+    DrawTextEx(font, "[L]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
+    DrawTextEx(font, "Habilita/Desabilita etiquetas de posição", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
+}
 
 void asideDraw(Aside aside, Font font)
 {
@@ -58,4 +68,3 @@ void asidePositionUpdate(Aside *aside, int screenWidth)
 {
     aside->box.x = screenWidth - aside->box.width;
 }
-
