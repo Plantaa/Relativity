@@ -1,30 +1,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "raylib.h"
 #include "math.h"
-#include "coordinate.h"
-#include "clear_button.h"
-#include "utils.h"
-#include "aside.h"
-#include "legend.h"
-#include "axis.h"
-#include "coordinate_system.h"
+#include "raylib.h"
 
-void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total);
-void drawSavedCoordinates(Coordinate *coordinates, int total, float angle);
-void drawAngleMarker(Vector2 origin, float angleDegrees);
+#include "aside.h"
+#include "axis.h"
+#include "clear_button.h"
+#include "coordinate.h"
+#include "coordinate_system.h"
+#include "legend.h"
+#include "utils.h"
+
 void clearCoordinates(Coordinate *coordinates, int total);
-void clearSelection(Coordinate *coordinates, int total);
-void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle);
-void initializeCoordinates(Coordinate *coordinates, int total);
-int findAvailableIndex(Coordinate *coordinates, int total);
-void updateCameraOffset(Camera2D *camera);
-void drawAxiiOrientationArrows(Camera2D camera, int screenWidth, int screenHeight, Color color);
-void drawAside(Aside *aside, Font font, int screenWidth);
-int getSavedCoordinateMouseHover(Coordinate *coordinates, int total, Vector2 mousePosition);
 void dragCoordinate(Coordinate *coordinate);
+void drawAngleMarker(Vector2 origin, float angleDegrees);
+void drawAside(Aside *aside, Font font, int screenWidth);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels);
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels);
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels);
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels);
+void initializeCoordinates(Coordinate *coordinates, int total);
+int findAvailableIndex(const Coordinate *const coordinates, int total);
+int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition);
+void updateCameraOffset(Camera2D *camera);
 
 int main(void)
 {
@@ -50,7 +49,7 @@ int main(void)
         .rotation = 0.0f,
         .zoom = 1.0f};
 
-    /* Load backgroud image */
+    /* Load background image */
     Image background = LoadImage("assets/Oreum.png");
     ImageResize(&background, screenWidth, screenHeight);
     Texture2D backgroundTexture = LoadTextureFromImage(background);
@@ -107,7 +106,7 @@ int main(void)
         .fontSize = 15};
 
     bool isDragging = false;
-    bool isMoving = false;
+    bool labels = false;
 
     while (!WindowShouldClose())
     {
@@ -123,6 +122,11 @@ int main(void)
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
         int savedCoordinateMouseHover = getSavedCoordinateMouseHover(coordinates, total, mousePositionCompensated);
 
+        if (IsKeyPressed(KEY_L))
+        {
+            labels = !labels;
+        }
+
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
@@ -130,34 +134,25 @@ int main(void)
             BeginMode2D(camera);
             {
                 DrawTextureV(backgroundTexture, (Vector2){origin.x - GetScreenWidth() / 2, origin.y - GetScreenHeight() / 2}, WHITE);
-                drawEveryFrame(primarySystem, secondarySystem, coordinates, total);
+                drawEveryFrame(primarySystem, secondarySystem, coordinates, total, labels);
 
                 if (IsKeyDown(KEY_R))
                 {
-                    coordinateSystemAngleUpdate(&secondarySystem, calculateAngle((Vector2){0}, mousePositionCompensated));
+                    float newAngle = calculateAngle((Vector2){}, mousePositionCompensated);
+                    coordinateSystemAngleUpdate(&secondarySystem, newAngle);
                 }
 
                 if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
                 {
-                    isMoving = true;
                     Vector2 mouseDrag = GetMouseDelta();
 
-                    if (isMoving)
-                    {
-                        camera.target.x -= mouseDrag.x;
-                        camera.target.y -= mouseDrag.y;
-                    }
-
+                    camera.target.x -= mouseDrag.x;
+                    camera.target.y -= mouseDrag.y;
                 }
-                
+
                 if (IsKeyPressed(KEY_SPACE))
                 {
                     camera.target = (Vector2){GetScreenWidth() * 0.092, (GetScreenHeight() / -20)};
-                }
-
-                else if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-                {
-                    isMoving = false;
                 }
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
@@ -172,7 +167,7 @@ int main(void)
                     }
                     else if (savedCoordinateMouseHover < 0 && !isMouseOnClearButton)
                     {
-                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle);
+                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle, labels);
                     }
                 }
 
@@ -200,7 +195,7 @@ int main(void)
                     }
                     else
                     {
-                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total);
+                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total, labels);
                     }
                 }
             }
@@ -229,24 +224,26 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total)
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels)
 {
     drawAngleMarker((Vector2){0}, radiansToDegrees(secondarySystem.angle));
     coordinateSystemDraw(primarySystem);
     coordinateSystemDraw(secondarySystem);
-    drawSavedCoordinates(coordinates, total, secondarySystem.angle);
+    drawSavedCoordinates(coordinates, total, secondarySystem.angle, labels);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels)
 {
     int index = findAvailableIndex(coordinates, total);
     if (index < 0)
+    {
         return;
+    }
 
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
-    coordinateDraw(*newCoordinate, angle);
+    coordinateDraw(*newCoordinate, angle, labels);
 }
 
 void drawAside(Aside *aside, Font font, int screenWidth)
@@ -263,15 +260,17 @@ void drawAside(Aside *aside, Font font, int screenWidth)
     };
 }
 
-void drawSavedCoordinates(Coordinate *coordinates, int total, float angle)
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels)
 {
     for (int i = 0; i < total; i++)
     {
         if (!coordinates[i].active)
+        {
             continue;
+        }
         coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
-        coordinateSecondaryLabelUpdate(coordinates + i, angle);
-        coordinateDraw(coordinates[i], angle);
+        coordinateLabelUpdate(coordinates + i, angle);
+        coordinateDraw(coordinates[i], angle, labels);
     }
 }
 
@@ -286,13 +285,15 @@ void drawAngleMarker(Vector2 origin, float angleDegrees)
 void clearCoordinates(Coordinate *coordinates, int total)
 {
     for (int i = 0; i < total; i++)
+    {
         coordinates[i].active = false;
+    }
 }
 
-void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle)
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels)
 {
     coordinateFill(coordinate, '?', position, angle, 6, BLUE);
-    coordinateDraw(*coordinate, angle);
+    coordinateDraw(*coordinate, angle, labels);
 }
 
 void initializeCoordinates(Coordinate *coordinates, int total)
@@ -304,11 +305,15 @@ void initializeCoordinates(Coordinate *coordinates, int total)
     }
 }
 
-int findAvailableIndex(Coordinate *coordinates, int total)
+int findAvailableIndex(const Coordinate *const coordinates, int total)
 {
     for (int i = 0; i < total; i++)
+    {
         if (!coordinates[i].active)
+        {
             return i;
+        }
+    }
     return -1;
 }
 
@@ -319,7 +324,7 @@ void updateCameraOffset(Camera2D *camera)
         .y = GetScreenHeight() / 2};
 }
 
-int getSavedCoordinateMouseHover(Coordinate *coordinates, int total, Vector2 mousePosition)
+int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition)
 {
     for (size_t i = 0; i < total; i++)
     {

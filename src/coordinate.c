@@ -24,14 +24,18 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
 }
 
-void coordinateDraw(Coordinate coordinate, float angle)
+void coordinateDraw(Coordinate coordinate, float angle, bool labels)
 {
     DrawCircleV(coordinate.primaryPosition, coordinate.radius, coordinate.color);
     coordinatePrimaryComponentsDraw(coordinate.primaryPosition, BLACK);
     coordinateSecondaryComponentsDraw(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED);
+    DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
+    if (!labels)
+    {
+        return;
+    }
     DrawText(coordinate.primaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 5, 10, BLACK);
     DrawText(coordinate.secondaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 17, 10, RED);
-    DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
 }
 
 void coordinatePrimaryComponentsDraw(Vector2 point, Color color)
@@ -66,8 +70,9 @@ void coordinatePrint(Coordinate *coord)
     printf("\n");
 }
 
-void coordinateSecondaryLabelUpdate(Coordinate *coordinate, float angle)
+void coordinateLabelUpdate(Coordinate * const coordinate, float angle)
 {
+    snprintf(coordinate->primaryLabel, 50, "(%.2fm, %.2fft)", coordinate->primaryPosition.x, -metersToFeet(coordinate->primaryPosition.y));
     coordinate->secondaryPosition = convertToSystemB(coordinate->primaryPosition, angle);
     snprintf(coordinate->secondaryLabel, 50, "(%.2fm, %.2fft)", coordinate->secondaryPosition.x, -metersToFeet(coordinate->secondaryPosition.y));
 }
