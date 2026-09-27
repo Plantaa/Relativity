@@ -9,7 +9,6 @@ typedef struct aside
     bool active;
 } Aside;
 
-Aside *asideCreate();
 void asideDraw(Aside aside, Font font);
 void asidePositionUpdate(Aside *aside, int screenWidth);
 void asideFill(Aside aside, Font font);
