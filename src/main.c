@@ -172,6 +172,8 @@ int main(void)
                     else if (isMouseOnCanvas)
                     {
                         drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle, labels);
+                        coordinates[coordinateSelected].selected = false;
+                        coordinateSelected = -1;
                     }
                 }
 
@@ -195,6 +197,7 @@ int main(void)
                     else if (isMouseOnClearButton)
                     {
                         clearCoordinates(coordinates, total);
+                        coordinates[coordinateSelected].selected = false;
                         coordinateSelected = -1;
                     }
                     else {
@@ -327,6 +330,10 @@ void updateCameraOffset(Camera2D *camera)
     camera->offset = (Vector2){
         .x = GetScreenWidth() / 2,
         .y = GetScreenHeight() / 2};
+}
+
+void selectCoordinate(Coordinate *const coordinates, int *const coordinateSelected)
+{
 }
 
 int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition)
