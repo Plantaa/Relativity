@@ -3,16 +3,18 @@
 
 #include "coordinate_system.h"
 
-void coordinateSystemDraw(CoordinateSystem coordinateSystem)
+void coordinateSystemDraw(CoordinateSystem coordinateSystem, float zoom)
 {
-    DrawLineEx(coordinateSystem.xAxis.begin, coordinateSystem.xAxis.end, 1.4f, coordinateSystem.axiiColor);
-    DrawLineEx(coordinateSystem.yAxis.begin, coordinateSystem.yAxis.end, 1.4f, coordinateSystem.axiiColor);
+    float thickness = 1.4f / zoom;
+    DrawLineEx(coordinateSystem.xAxis.begin, coordinateSystem.xAxis.end, thickness, coordinateSystem.axiiColor);
+    DrawLineEx(coordinateSystem.yAxis.begin, coordinateSystem.yAxis.end, thickness, coordinateSystem.axiiColor);
 }
 
 void coordinateSystemValuesUpdate(CoordinateSystem *coordinateSystem, Camera2D camera)
 {
-    int screenWidth = GetScreenWidth();
-    int screenHeight = GetScreenHeight();
+    /* Visible world area grows as the camera zooms out */
+    float screenWidth = GetScreenWidth() / camera.zoom;
+    float screenHeight = GetScreenHeight() / camera.zoom;
 
     coordinateSystem->xAxis = (Axis){
         .begin = {

@@ -45,7 +45,12 @@ void asideFill(Aside aside, Font font)
     descriptionTextPostition.y += 46;
 
     DrawTextEx(font, "[Espaço]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
-    DrawTextEx(font, "Recentraliza a câmera", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
+    DrawTextEx(font, "Recentraliza a câmera e reseta o zoom", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
+    titleTextPosition.y += 46;
+    descriptionTextPostition.y += 46;
+
+    DrawTextEx(font, "[Roda do mouse]", titleTextPosition, titleFontSize, fontSpacing, BLACK);
+    DrawTextEx(font, "Aproxima/Afasta a câmera na posição do mouse", descriptionTextPostition, descriptionFontSize, fontSpacing, GRAY);
     titleTextPosition.y += 46;
     descriptionTextPostition.y += 46;
 

@@ -19,9 +19,9 @@ typedef struct coordinate
 } Coordinate;
 
 void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, float angle, int radius, Color color);
-void coordinateDraw(Coordinate coordinate, float angle, bool labels);
-void coordinatePrimaryComponentsDraw(Vector2 point, Color color);
-void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color);
+void coordinateDraw(Coordinate coordinate, float angle, bool labels, float zoom);
+void coordinatePrimaryComponentsDraw(Vector2 point, Color color, float zoom);
+void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color, float zoom);
 void coordinatePrint(Coordinate *coordinate);
 void coordinateLabelUpdate(Coordinate * const coordinate, float angle);
 

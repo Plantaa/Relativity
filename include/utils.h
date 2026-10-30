@@ -8,7 +8,7 @@ float calculateAngle(Vector2 start, Vector2 end);
 float radiansToDegrees(float radians);
 Vector2 convertToSystemA(Vector2 point, float angle);
 Vector2 convertToSystemB(Vector2 point, float angle);
-void drawDottedLine(Vector2 start, Vector2 end, Color color);
+void drawDottedLine(Vector2 start, Vector2 end, Color color, float zoom);
 double metersToFeet(double meters);
 
 #endif

@@ -24,36 +24,44 @@ void coordinateFill(Coordinate *coordinate, const char name, Vector2 position, f
     snprintf(coordinate->nameLabel, 2, "%c", coordinate->name);
 }
 
-void coordinateDraw(Coordinate coordinate, float angle, bool labels)
+/* Sizes are divided by zoom so points and labels keep the same size on screen */
+static void coordinateTextDraw(const char *text, Vector2 position, float xOffset, float yOffset, float zoom, Color color)
 {
-    DrawCircleV(coordinate.primaryPosition, coordinate.radius, coordinate.color);
-    coordinatePrimaryComponentsDraw(coordinate.primaryPosition, BLACK);
-    coordinateSecondaryComponentsDraw(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED);
-    DrawText(coordinate.nameLabel, coordinate.primaryPosition.x - 13, coordinate.primaryPosition.y - 13, 10, DARKBLUE);
+    float fontSize = 10.f / zoom;
+    Vector2 textPosition = {position.x + xOffset / zoom, position.y + yOffset / zoom};
+    DrawTextEx(GetFontDefault(), text, textPosition, fontSize, 1.f / zoom, color);
+}
+
+void coordinateDraw(Coordinate coordinate, float angle, bool labels, float zoom)
+{
+    DrawCircleV(coordinate.primaryPosition, coordinate.radius / zoom, coordinate.color);
+    coordinatePrimaryComponentsDraw(coordinate.primaryPosition, BLACK, zoom);
+    coordinateSecondaryComponentsDraw(coordinate.primaryPosition, coordinate.secondaryPosition, angle, RED, zoom);
+    coordinateTextDraw(coordinate.nameLabel, coordinate.primaryPosition, -13, -13, zoom, DARKBLUE);
     if (!labels)
     {
         return;
     }
-    DrawText(coordinate.primaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 5, 10, BLACK);
-    DrawText(coordinate.secondaryLabel, coordinate.primaryPosition.x + 5, coordinate.primaryPosition.y + 17, 10, RED);
+    coordinateTextDraw(coordinate.primaryLabel, coordinate.primaryPosition, 5, 5, zoom, BLACK);
+    coordinateTextDraw(coordinate.secondaryLabel, coordinate.primaryPosition, 5, 17, zoom, RED);
 }
 
-void coordinatePrimaryComponentsDraw(Vector2 point, Color color)
+void coordinatePrimaryComponentsDraw(Vector2 point, Color color, float zoom)
 {
     Vector2 xComponent = (Vector2){point.x, 0};
-    drawDottedLine(point, xComponent, color);
+    drawDottedLine(point, xComponent, color, zoom);
 
     Vector2 yComponent = (Vector2){0, point.y};
-    drawDottedLine(point, yComponent, color);
+    drawDottedLine(point, yComponent, color, zoom);
 }
 
-void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color)
+void coordinateSecondaryComponentsDraw(Vector2 primaryPosition, Vector2 secondaryPosition, float angle, Color color, float zoom)
 {
     Vector2 xComponent = convertToSystemA((Vector2){secondaryPosition.x, 0}, angle);
-    drawDottedLine(primaryPosition, xComponent, color);
+    drawDottedLine(primaryPosition, xComponent, color, zoom);
 
     Vector2 yComponent = convertToSystemA((Vector2){0, secondaryPosition.y}, angle);
-    drawDottedLine(primaryPosition, yComponent, color);
+    drawDottedLine(primaryPosition, yComponent, color, zoom);
 }
 
 void coordinatePrint(Coordinate *coord)

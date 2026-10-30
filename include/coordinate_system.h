@@ -13,7 +13,7 @@ typedef struct coordinate_system
     double angle;
 }CoordinateSystem;
 
-void coordinateSystemDraw(CoordinateSystem coordinateSystem);
+void coordinateSystemDraw(CoordinateSystem coordinateSystem, float zoom);
 void coordinateSystemValuesUpdate(CoordinateSystem *coordinateSystem, Camera2D camera);
 void coordinateSystemAngleUpdate(CoordinateSystem *coordinateSystem, double angle);
 
