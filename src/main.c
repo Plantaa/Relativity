@@ -12,18 +12,23 @@
 #include "legend.h"
 #include "utils.h"
 
+#define MIN_ZOOM 0.1f
+#define MAX_ZOOM 10.0f
+#define ZOOM_STEP 1.1f
+
 void clearCoordinates(Coordinate *coordinates, int total);
-void dragCoordinate(Coordinate *coordinate);
-void drawAngleMarker(Vector2 origin, float angleDegrees);
+void dragCoordinate(Coordinate *coordinate, float zoom);
+void drawAngleMarker(Vector2 origin, float angleDegrees, float zoom);
 void drawAside(Aside *aside, Font font, int screenWidth);
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels);
-void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels);
-void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels);
-void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels);
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels, float zoom);
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels, float zoom);
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels, float zoom);
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels, float zoom);
 void initializeCoordinates(Coordinate *coordinates, int total);
 int findAvailableIndex(const Coordinate *const coordinates, int total);
-int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition);
+int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition, float zoom);
 void updateCameraOffset(Camera2D *camera);
+void zoomCameraAtPoint(Camera2D *camera, Vector2 screenPoint, float wheel);
 
 int main(void)
 {
@@ -84,7 +89,7 @@ int main(void)
         .box = {
             .x = screenWidth - 500,
             .y = 0,
-            .height = screenHeight / 2,
+            .height = screenHeight / 2 + 50,
             .width = 500}};
 
     Legend legend = {
@@ -110,18 +115,25 @@ int main(void)
 
     while (!WindowShouldClose())
     {
+        updateCameraOffset(&camera);
+
+        float mouseWheel = GetMouseWheelMove();
+        if (mouseWheel != 0)
+        {
+            zoomCameraAtPoint(&camera, GetMousePosition(), mouseWheel);
+        }
+
         Vector2 mousePosition = GetMousePosition();
         Vector2 mousePositionCompensated = GetScreenToWorld2D(mousePosition, camera);
         Vector2 mouseDelta = GetMouseDelta();
 
         coordinateSystemValuesUpdate(&primarySystem, camera);
-        updateCameraOffset(&camera);
         clearButtonPositionUpdate(&clearButton, GetScreenHeight());
         asidePositionUpdate(&aside, GetScreenWidth());
         legendPositionUpdate(&legend);
 
         bool isMouseOnClearButton = CheckCollisionPointRec(mousePosition, clearButton.box);
-        int savedCoordinateMouseHover = getSavedCoordinateMouseHover(coordinates, total, mousePositionCompensated);
+        int savedCoordinateMouseHover = getSavedCoordinateMouseHover(coordinates, total, mousePositionCompensated, camera.zoom);
         bool isMouseOnCanvas = savedCoordinateMouseHover < 0 && !isMouseOnClearButton;
         bool isMouseOnSelectedCoordinate = coordinateSelected >= 0 && coordinateSelected == savedCoordinateMouseHover;
         bool isMouseDragging = mouseDelta.x || mouseDelta.y;
@@ -138,7 +150,7 @@ int main(void)
             BeginMode2D(camera);
             {
                 DrawTextureV(backgroundTexture, (Vector2){origin.x - GetScreenWidth() / 2, origin.y - GetScreenHeight() / 2}, WHITE);
-                drawEveryFrame(primarySystem, secondarySystem, coordinates, total, labels);
+                drawEveryFrame(primarySystem, secondarySystem, coordinates, total, labels, camera.zoom);
 
                 if (IsKeyDown(KEY_R))
                 {
@@ -150,20 +162,21 @@ int main(void)
                 {
                     Vector2 mouseDrag = GetMouseDelta();
 
-                    camera.target.x -= mouseDrag.x;
-                    camera.target.y -= mouseDrag.y;
+                    camera.target.x -= mouseDrag.x / camera.zoom;
+                    camera.target.y -= mouseDrag.y / camera.zoom;
                 }
 
                 if (IsKeyPressed(KEY_SPACE))
                 {
                     camera.target = (Vector2){GetScreenWidth() * 0.092, (GetScreenHeight() / -20)};
+                    camera.zoom = 1.0f;
                 }
 
                 if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
                 {
                     if (isCoordinateDragging)
                     {
-                        dragCoordinate(coordinates + coordinateSelected);
+                        dragCoordinate(coordinates + coordinateSelected, camera.zoom);
                     }
                     else if (isMouseOnSelectedCoordinate && isMouseDragging)
                     {
@@ -171,7 +184,7 @@ int main(void)
                     }
                     else if (isMouseOnCanvas)
                     {
-                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle, labels);
+                        drawPlaceholderCoordinate(&placeholderCoordinate, mousePositionCompensated, secondarySystem.angle, labels, camera.zoom);
                         coordinates[coordinateSelected].selected = false;
                         coordinateSelected = -1;
                     }
@@ -201,7 +214,7 @@ int main(void)
                         coordinateSelected = -1;
                     }
                     else {
-                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total, labels);
+                        drawAndSaveNewCoordinate(coordinates, mousePositionCompensated, secondarySystem.angle, total, labels, camera.zoom);
                     }
                 }
             }
@@ -232,15 +245,15 @@ int main(void)
     return 0;
 }
 
-void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels)
+void drawEveryFrame(CoordinateSystem primarySystem, CoordinateSystem secondarySystem, Coordinate *coordinates, int total, bool labels, float zoom)
 {
-    drawAngleMarker((Vector2){0}, radiansToDegrees(secondarySystem.angle));
-    coordinateSystemDraw(primarySystem);
-    coordinateSystemDraw(secondarySystem);
-    drawSavedCoordinates(coordinates, total, secondarySystem.angle, labels);
+    drawAngleMarker((Vector2){0}, radiansToDegrees(secondarySystem.angle), zoom);
+    coordinateSystemDraw(primarySystem, zoom);
+    coordinateSystemDraw(secondarySystem, zoom);
+    drawSavedCoordinates(coordinates, total, secondarySystem.angle, labels, zoom);
 }
 
-void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels)
+void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float angle, int total, bool labels, float zoom)
 {
     int index = findAvailableIndex(coordinates, total);
     if (index < 0)
@@ -251,7 +264,7 @@ void drawAndSaveNewCoordinate(Coordinate *coordinates, Vector2 position, float a
     Coordinate *newCoordinate = coordinates + index;
     coordinateFill(newCoordinate, 'A' + index, position, angle, 6, BLUE);
 
-    coordinateDraw(*newCoordinate, angle, labels);
+    coordinateDraw(*newCoordinate, angle, labels, zoom);
 }
 
 void drawAside(Aside *aside, Font font, int screenWidth)
@@ -268,7 +281,7 @@ void drawAside(Aside *aside, Font font, int screenWidth)
     };
 }
 
-void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels)
+void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool labels, float zoom)
 {
     for (int i = 0; i < total; i++)
     {
@@ -278,16 +291,16 @@ void drawSavedCoordinates(Coordinate *coordinates, int total, float angle, bool 
         }
         coordinates[i].color = coordinates[i].selected ? GREEN : BLUE;
         coordinateLabelUpdate(coordinates + i, angle);
-        coordinateDraw(coordinates[i], angle, labels);
+        coordinateDraw(coordinates[i], angle, labels, zoom);
     }
 }
 
-void drawAngleMarker(Vector2 origin, float angleDegrees)
+void drawAngleMarker(Vector2 origin, float angleDegrees, float zoom)
 {
     char markerText[10];
     snprintf(markerText, 10, "%.2f", -angleDegrees);
-    DrawCircleSectorLines(origin, 50, 0.f, angleDegrees, 30, DARKGRAY);
-    DrawText(markerText, 60, 20, 10, DARKGRAY);
+    DrawCircleSectorLines(origin, 50 / zoom, 0.f, angleDegrees, 30, DARKGRAY);
+    DrawTextEx(GetFontDefault(), markerText, (Vector2){origin.x + 60 / zoom, origin.y + 20 / zoom}, 10 / zoom, 1 / zoom, DARKGRAY);
 }
 
 void clearCoordinates(Coordinate *coordinates, int total)
@@ -298,10 +311,10 @@ void clearCoordinates(Coordinate *coordinates, int total)
     }
 }
 
-void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels)
+void drawPlaceholderCoordinate(Coordinate *coordinate, Vector2 position, float angle, bool labels, float zoom)
 {
     coordinateFill(coordinate, '?', position, angle, 6, BLUE);
-    coordinateDraw(*coordinate, angle, labels);
+    coordinateDraw(*coordinate, angle, labels, zoom);
 }
 
 void initializeCoordinates(Coordinate *coordinates, int total)
@@ -332,15 +345,28 @@ void updateCameraOffset(Camera2D *camera)
         .y = GetScreenHeight() / 2};
 }
 
+/* Zooms keeping the world point under screenPoint fixed on screen */
+void zoomCameraAtPoint(Camera2D *camera, Vector2 screenPoint, float wheel)
+{
+    Vector2 worldBefore = GetScreenToWorld2D(screenPoint, *camera);
+
+    camera->zoom *= powf(ZOOM_STEP, wheel);
+    camera->zoom = fminf(fmaxf(camera->zoom, MIN_ZOOM), MAX_ZOOM);
+
+    Vector2 worldAfter = GetScreenToWorld2D(screenPoint, *camera);
+    camera->target.x += worldBefore.x - worldAfter.x;
+    camera->target.y += worldBefore.y - worldAfter.y;
+}
+
 void selectCoordinate(Coordinate *const coordinates, int *const coordinateSelected)
 {
 }
 
-int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition)
+int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total, Vector2 mousePosition, float zoom)
 {
     for (size_t i = 0; i < total; i++)
     {
-        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius))
+        if (coordinates[i].active && CheckCollisionPointCircle(mousePosition, coordinates[i].primaryPosition, coordinates[i].radius / zoom))
         {
             return i;
         }
@@ -348,9 +374,9 @@ int getSavedCoordinateMouseHover(const Coordinate *const coordinates, int total,
     return -1;
 }
 
-void dragCoordinate(Coordinate *coordinate)
+void dragCoordinate(Coordinate *coordinate, float zoom)
 {
     Vector2 mouseDelta = GetMouseDelta();
-    coordinate->primaryPosition.x += mouseDelta.x;
-    coordinate->primaryPosition.y += mouseDelta.y;
+    coordinate->primaryPosition.x += mouseDelta.x / zoom;
+    coordinate->primaryPosition.y += mouseDelta.y / zoom;
 }

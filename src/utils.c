@@ -41,22 +41,24 @@ Vector2 convertToSystemB(Vector2 point, float angle)
     return pointB;
 }
 
-void drawDottedLine(Vector2 start, Vector2 end, Color color)
+/* Dots are spaced and sized in screen pixels, so the pattern looks the same at any zoom */
+void drawDottedLine(Vector2 start, Vector2 end, Color color, float zoom)
 {
     double deltaX = (end.x - start.x);
     double deltaY = (end.y - start.y);
 
     double dotX = start.x;
     double dotY = start.y;
+    float dotSize = 1.f / zoom;
 
-    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L))/2;
+    double dotNumber = sqrt(pow(deltaX, 2.L) + pow(deltaY, 2.L)) * zoom / 2;
 
     double deltaDotX = deltaX / dotNumber;
     double deltaDotY = deltaY / dotNumber;
 
     for (int i = 0; i < dotNumber; i++)
     {
-        DrawPixel(dotX, dotY, color);
+        DrawRectangleV((Vector2){dotX, dotY}, (Vector2){dotSize, dotSize}, color);
         dotX += deltaDotX;
         dotY += deltaDotY;
     }
